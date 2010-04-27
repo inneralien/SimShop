@@ -6,6 +6,43 @@ from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 import subprocess
 import re
+from test_template import test_template
+
+class VerilogSim():
+    def __init__(self, env):
+        self.env = env
+
+    def prepend(self, flag, items):
+        return ["%s%s" % (flag,b) for b in items]
+
+    def compile(self):
+        """
+        Build the simulation into an executable
+        """
+        print "Compiling design"
+        if(self.cmd is not None):
+            print ' '.join("%s" % i for i in self.cmd)
+            self.compile_process = subprocess.Popen(self.cmd)
+            self.compile_process.communicate()
+        else:
+            print "No command given"
+
+    def run(self):
+        """Run the generated executable"""
+        if(self.compile_process.returncode == 0):
+            print "Running Simulation: %s" % self.env.target
+            sim_process = subprocess.Popen(['vvp', self.outfile], 
+                stdin=subprocess.PIPE)
+            # To keep the simulation from running off I catch a keyboard interrupt
+            # and terminate the process.
+            try:
+                sim_process.communicate()
+            except KeyboardInterrupt:
+                print "KeyboardInterrupt Caught... terminating simulation"
+                sim_process.terminate()
+        else:
+            "Compile didn't complete so simulation can't be run"
+
 
 class IcarusVerilogSim():
     """
@@ -45,8 +82,11 @@ class IcarusVerilogSim():
         for item in default_items:
             if(self.env.has_option('DEFAULT', item)):
                 setattr(self, item, self.env.get('DEFAULT', item).split())
-
-        proj_root = self.env.get('DEFAULT', 'PROJ_ROOT')
+        
+        if(not self.env.has_option('DEFAULT', 'PROJ_ROOT')):
+            proj_root = "./"
+        else:
+            proj_root = self.env.get('DEFAULT', 'PROJ_ROOT')
         rel_proj_root = os.path.normpath(self.env.path + "/" + proj_root)
 
         src_files = self.rtl_files + self.test_files
@@ -62,13 +102,6 @@ class IcarusVerilogSim():
 
     def prepend(self, flag, items):
         return ["%s%s" % (flag,b) for b in items]
-
-#    def addFlags(self, flag, items):
-#        """
-#        Prepends the appropriate flag to the list of items.
-#        Returns a list
-#        """
-#        return ["-%s%s" % (flag,b) for b in items]
 
     def compile(self):
         """
@@ -138,13 +171,13 @@ class SimEnv(SafeConfigParser):
                 else:
                     proj_root = ''
                 path = os.path.normpath(os.path.split(config)[0])
-                print "- %s" % (path) #, self.cp.get('DEFAULT', 'VARIANT_NAME'))
+                print "%s/" % (path) #, self.cp.get('DEFAULT', 'VARIANT_NAME'))
                 for section in self.sections():
                     print "    %s" % section
                 print "--------------------------"
         print ""
         print "To run a simulation:"
-        print "simulate <path_to/variant>.<test>"
+        print "simulate <path_to/variant>/<test>"
 
     def verifyTarget(self, target):
         """
@@ -154,7 +187,9 @@ class SimEnv(SafeConfigParser):
         print "Verifying Target: %s" % target
         self.target = target
         try:
-            (self.path, self.test) = target.split('.')
+            (self.path, self.test) = os.path.split(target)
+#            (self.path, self.test) = target.split('.')
+            print self.path, self.test
         except:
             self.path = target
             self.test = ''
@@ -162,9 +197,9 @@ class SimEnv(SafeConfigParser):
         if(os.path.exists(self.path)):
             self.getCfg(self.path)
             if(self.has_section(self.test)):
-                print "Generating test file"
+                print "Generating test file based on test '%s'" % self.test
             else:
-                print "Just compiling files"
+                print "No test given or found, so just compiling the files"
         else:
             print "No valid target found"
             sys.exit(1)
