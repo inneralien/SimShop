@@ -6,43 +6,11 @@ from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 import subprocess
 import re
+from distutils import dep_util
 from test_template import test_template
 
-class VerilogSim():
-    def __init__(self, env):
-        self.env = env
-
-    def prepend(self, flag, items):
-        return ["%s%s" % (flag,b) for b in items]
-
-    def compile(self):
-        """
-        Build the simulation into an executable
-        """
-        print "Compiling design"
-        if(self.cmd is not None):
-            print ' '.join("%s" % i for i in self.cmd)
-            self.compile_process = subprocess.Popen(self.cmd)
-            self.compile_process.communicate()
-        else:
-            print "No command given"
-
-    def run(self):
-        """Run the generated executable"""
-        if(self.compile_process.returncode == 0):
-            print "Running Simulation: %s" % self.env.target
-            sim_process = subprocess.Popen(['vvp', self.outfile], 
-                stdin=subprocess.PIPE)
-            # To keep the simulation from running off I catch a keyboard interrupt
-            # and terminate the process.
-            try:
-                sim_process.communicate()
-            except KeyboardInterrupt:
-                print "KeyboardInterrupt Caught... terminating simulation"
-                sim_process.terminate()
-        else:
-            "Compile didn't complete so simulation can't be run"
-
+from builders.IcarusVerilog import IcarusVerilog
+import SimRun
 
 class IcarusVerilogSim():
     """
@@ -55,8 +23,8 @@ class IcarusVerilogSim():
 
     simulate command
     """
-    def __init__(self, env):
-        self.env = env
+    def __init__(self, cfg):
+        self.cfg = cfg
         self.warn = 'all'
         self.outfile = 'sim'
         self.rtl_files = []
@@ -80,14 +48,14 @@ class IcarusVerilogSim():
                             'defines']
 
         for item in default_items:
-            if(self.env.has_option('DEFAULT', item)):
-                setattr(self, item, self.env.get('DEFAULT', item).split())
+            if(self.cfg.has_option('DEFAULT', item)):
+                setattr(self, item, self.cfg.get('DEFAULT', item).split())
         
-        if(not self.env.has_option('DEFAULT', 'PROJ_ROOT')):
+        if(not self.cfg.has_option('DEFAULT', 'PROJ_ROOT')):
             proj_root = "./"
         else:
-            proj_root = self.env.get('DEFAULT', 'PROJ_ROOT')
-        rel_proj_root = os.path.normpath(self.env.path + "/" + proj_root)
+            proj_root = self.cfg.get('DEFAULT', 'PROJ_ROOT')
+        rel_proj_root = os.path.normpath(self.cfg.path + "/" + proj_root)
 
         src_files = self.rtl_files + self.test_files
         inc_dirs = self.rtl_inc_dirs + self.test_inc_dirs
@@ -118,7 +86,7 @@ class IcarusVerilogSim():
     def run(self):
         """Run the generated executable"""
         if(self.compile_process.returncode == 0):
-            print "Running Simulation: %s" % self.env.target
+            print "Running Simulation: %s" % self.cfg.target
             sim_process = subprocess.Popen(['vvp', self.outfile], 
                 stdin=subprocess.PIPE)
             # To keep the simulation from running off I catch a keyboard interrupt
@@ -131,7 +99,7 @@ class IcarusVerilogSim():
         else:
             "Compile didn't complete so simulation can't be run"
 
-class SimEnv(SafeConfigParser):
+class SimCfg(SafeConfigParser):
     """
     This class is used to maintain the simulation environment
     including paths and config files.
@@ -139,6 +107,7 @@ class SimEnv(SafeConfigParser):
     def __init__(self):
         SafeConfigParser.__init__(self)
         self.cfg_files = []
+        self.cfg_file = None
         self.target = None
         self.path = None
         self.test = None
@@ -155,8 +124,8 @@ class SimEnv(SafeConfigParser):
                     if(path is '.'):
                         self.cfg_files.append("%s%s%s" % (directory, os.sep, f))
                     else:
-                        cfg_file = "%s%s%s" % (directory, os.sep, f)
-                        self.read(cfg_file)
+                        self.cfg_file = "%s%s%s" % (directory, os.sep, f)
+                        self.read(self.cfg_file)
 
     def listTests(self):
         """
@@ -227,19 +196,25 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    env = SimEnv()
+    cfg = SimCfg()
     if(options.list_tests):
-        env.listTests()
+        cfg.listTests()
         sys.exit()
 
     if(len(args) > 0):
         target = args[0]
-        env.verifyTarget(target)
-        sim = IcarusVerilogSim(env)
-        sim.compile()
-        sim.run()
+        cfg.verifyTarget(target)
+        sim = IcarusVerilog(cfg)
+        print sim.cmds
 
-#        print env.cfg_files
+#        sim.buildCompCmd()
+#        sim.buildSimCmd()
+#        print sim.compCmd
+#        print sim.simCmd
+#        sim.compile()
+#        sim.run()
+
+#        print cfg.cfg_files
 #        vs = IcarusVerilogSim()
 #        vs.run(target)
     else:
