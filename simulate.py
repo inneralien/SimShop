@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import sys, os, os.path
+from ConfigParser import NoOptionError
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 import subprocess
@@ -111,6 +112,18 @@ class SimCfg(SafeConfigParser):
         self.target = None
         self.path = None
         self.test = None
+
+    def __getitem__(self, item):
+        try:
+            value = self.get('DEFAULT', item)
+            return value
+        except NoOptionError, (instance):
+            print "LOG - missing config option: '%s'" % item
+            return list()
+
+
+    def __setitem__(self, key, value):
+        return self.set('DEFAULT', key, value)
 
     def getCfg(self, path=None):
         cfg = re.compile(".*\.cfg$")

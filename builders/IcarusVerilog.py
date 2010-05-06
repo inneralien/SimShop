@@ -10,43 +10,46 @@ class IcarusVerilog(VerilogSim):
     """
     def __init__(self, cfg):
         VerilogSim.__init__(self, cfg)
+        self.cfg = cfg
         self.compCmd = ['iverilog']
         self.simCmd = ['./sim']
         self.plusargs = None
-        self.flags['warn'] = lambda x: self.prepend('-W', x)
-        self.comp_flags = [
-            ('warn',            lambda x: self.prepend('-W', x)),
-            ('outfile',         lambda x: self.prepend('-o', x)),
-            ('defines',         lambda x: self.prepend('-D', x)),
-            ('rtl_inc_dirs',    lambda x: self.prependWithPath('-I', x)),
-            ('test_inc_dirs',   lambda x: self.prependWithPath('-I', x)),
-            ('rtl_files',       lambda x: self.prependWithPath('', x)),
-            ('test_files',      lambda x: self.prependWithPath('', x)),
-            ('dump',            None),
-        ]
-        self.sim_flags = [
-            ('plusargs',        lambda x: self.prepend('+', x)),
-        ]
-        
+#        self.flags = {}
+
+        ## Default flags specific to Icarus Verilog
+        ## and any required list comprehension commands
+        self['warn'] = ['-Wall']
+        self['outfile'] = ['-osim']
+        ## List comprehension functions for specific flags
+        self.flag_cmds['warn'] = lambda x: self._prepend('-W', x)
+        self.flag_cmds['outfile'] = lambda x: self._prepend('-o', x)
+
+        ## Run the populate method to do the cfg conversion
+        self.populate()
+
         self.buildCompCmd()
         self.buildSimCmd()
         self.cmds = [self.compCmd, self.simCmd]
 
     def buildCompCmd(self):
-        print "IcarusVerilog Compile"
-        for i,f in self.comp_flags:
-            if(i in self.data and not None):
-                if(f is not None):
-                    flag = f(self[i])
-                    self.compCmd += flag
+        self.compCmd =  ['iverilog'] +  \
+                        self['warn'] +  \
+                        self['outfile'] + \
+                        self['defines'] + \
+                        self['rtl_inc_dirs'] + \
+                        self['test_inc_dirs'] + \
+                        self['rtl_files'] + \
+                        self['test_files'] + \
+                        self['plusargs']
 
     def buildSimCmd(self):
-        print "IcarusVerilog Simulation"
-        for i,f in self.sim_flags:
-            if(i in self.data and not None):
-                if(f is not None):
-                    flag = f(self[i])
-                    self.simCmd += flag
+        self.simCmd = self.cfg['outfile']
+#        print "IcarusVerilog Simulation"
+#        for i,f in self.sim_flags:
+#            if(i in self.data and not None):
+#                if(f is not None):
+#                    flag = f(self[i])
+#                    self.simCmd += flag
 
 #        self.simCmd = [self.outfile, self.plusargs]
 
