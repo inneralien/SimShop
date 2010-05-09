@@ -4,14 +4,15 @@
 import subprocess
 
 class SimRun():
-    def __init__(self, cmds=None):
-        self.cmds = []
+    def __init__(self, cmds=[]):
+        self.cmds = cmds
         self.show_cmds = True
 
     def showCmds(self, enable):
         self.show_cmds = bool(enable)
 
     def run(self):
+        print len(self.cmds)
         for cmd in self.cmds:
             if(self.show_cmds):
                 print ">",
@@ -33,6 +34,11 @@ class ProcessFail(Exception):
         print "In ProcessFail Exception"
 
 if __name__ == '__main__':
-    s = SimRun()
-    s.cmds = (['pwd'], ['./t.py'], ['ls', '-ltrp'], ['pwd'], ['nocmd'])
+    s = SimRun(['pwd'])
     s.run()
+    cmds = []
+    cmds.append([['pwd'], ['ls', '-ltrp'], ['pwd'], ['nocmd']])
+    for cmd in cmds:
+        s.cmds = cmd
+        s.run()
+

@@ -218,18 +218,7 @@ if __name__ == '__main__':
         target = args[0]
         cfg.verifyTarget(target)
         sim = IcarusVerilog(cfg)
-        print sim.cmds
-
-#        sim.buildCompCmd()
-#        sim.buildSimCmd()
-#        print sim.compCmd
-#        print sim.simCmd
-#        sim.compile()
-#        sim.run()
-
-#        print cfg.cfg_files
-#        vs = IcarusVerilogSim()
-#        vs.run(target)
+        sim.run()
     else:
         parser.print_help()
 
