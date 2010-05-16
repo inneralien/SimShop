@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import re, os
+import re, os, sys
 from ConfigParser import NoOptionError
 from ConfigParser import SafeConfigParser
 

@@ -4,6 +4,7 @@
 import sys
 from optparse import OptionParser
 import re
+import string
 #from distutils import dep_util
 from test_template import test_template
 
@@ -30,7 +31,12 @@ if __name__ == '__main__':
                         dest="compile_only",
                         help="compile the simulation but don't run it")
 
+    # List available tools, i.e. iverilog, vcs, modelsim
+    # List available builders, i.e. IcarusVerilog
+
     (options, args) = parser.parse_args()
+
+    auto_test_template_file = 'test_template.py'
 
     cfg = SimCfg.SimCfg()
     if(options.list_tests):

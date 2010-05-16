@@ -7,6 +7,7 @@ class VerilogSim():
     def __init__(self, cfg):
         self.cfg = cfg
         self.flags = {}
+#        self.flags['build_dir']     = CmdArgs(value=['./run'])
         self.flags['proj_root']     = CmdArgs(value=['./'])
         self.flags['defines']       = CmdArgs(cmd=lambda x: self._prepend('-D', x))
         self.flags['rtl_inc_dirs']  = CmdArgs(cmd=lambda x: self._prependWithPath('-I', x))

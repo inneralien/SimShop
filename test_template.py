@@ -1,68 +1,42 @@
 test_template = """
-$timescale
-`timescale 1 ns / 10 ps
-
-
-module test_top();
+`timescale $timescale
 `include "testlib.vh"
 
-/////////////////
-// Start dumping
-/////////////////
-initial begin
-    `ifdef NCV
-	$$display("<%0t> Dump file set to ./results/ncv.trn.", $$time);
-        $$recordfile("./log/ncv.trn");
-    `endif
-    `ifndef NCV
-	$$display("<%0t> Dump file set to $dump.", $$time);
-        $$dumpfile("$dump");
-    `endif
-
-    $$display("");
-    if ($$test$$plusargs("DUMPON")) begin
-	$$display("<%0t> Dumping started.", $$time);
-        `ifdef NCV
-//	    $$recordvars(0,tb);
-	    $$recordvars(tb);
-        `endif
-        `ifndef NCV
-	    $$dumpvars(8,tb);
-	    $$dumpvars(4,test_common);
-	    $$dumpvars;
-        `endif
-        end
-    else
-	$$display("<%0t> Dumping has been turned OFF. Nothing will be dumped.", $$time);
-end
-
-
-initial begin : main
-    `reset_chip;
-    if ($$test$$plusargs("check")) begin
+module auto_test();
+  // Setup simulation dumping or not
+    initial begin : setup
         $$display("");
-        $$display("#################################################");
-        $$display("Running Check Tests.");
-        $$display("#################################################");
-        // list all tasks here
-        test_common.reg_defaults;
-        test_common.dlmp_test;
+        $$display("<%0t> Dump file set to ./icarus.vcd.", $$time);
+        $$dumpfile("$dumpfile");
+        if ($$test$$plusargs("DUMPON")) begin
+            $$display("<%0t> Dumping started.", $$time);
+            $$dumpvars(0,tb);
+        end
+        else
+        $$display("<%0t> Dumping has been turned OFF. Nothing will be dumped.", $$time);
+        
+        $$display("");
+        runsim;
+        $$finish;
+//        `simulation_finish;
     end
-   else if ($$test$$plusargs("regression")) begin
-      $$display("");
-      $$display("###################################");
-      $$display("## Running regression test suite ##");
-      $$display("###################################");
-      test_common.reg_defaults;
-      test_common.dlmp_test;
-   end
-   else begin
-      if ( $$test$$plusargs("reg_defaults"))		begin test_common.reg_defaults; end
-      if ( $$test$$plusargs("dlmp_test"))			begin test_common.dlmp_test; end
-   end
-
-   repeat(100) @(posedge tb.clk_16m);
-   `simulation_finish;
-end
-
+    
+    task runsim;
+    begin
+        fork : auto_tests
+        begin : auto_tests_run
+            $$display("<%0t> Starting Auto Tests", $$time);
+            $tasks
+            test_task.deser_data_frm;
+            disable auto_tests;
+        end
+        begin
+            #4000000;   // Timeout
+            $$display("<%0t> Timeout.", $$time);
+            disable auto_tests_run;
+            disable auto_tests;
+        end
+        join
+    end
+    endtask
 endmodule"""
