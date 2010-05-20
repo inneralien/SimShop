@@ -26,6 +26,8 @@ class SimCfg(SafeConfigParser):
         self['timeout'] = '40000000'
         self['builddir'] = 'build'
         self['auto_test_file'] = 'auto_test.v'
+#        self['plusargs'] = ''
+#        self['defines'] = ''
 
     def __getitem__(self, item):
         try:
@@ -33,9 +35,11 @@ class SimCfg(SafeConfigParser):
             return value
         except NoOptionError, (instance):
             print "LOG - missing config option: '%s'" % item
-            return list()
+#            return list()
+            return ''
 
     def __setitem__(self, key, value):
+        print "KEY, VALUE", key, type(value)
         return self.set('DEFAULT', key, value)
 
     def readCfg(self, path=None):

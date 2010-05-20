@@ -34,6 +34,10 @@ if __name__ == '__main__':
                         action='append',
                         dest="defines",
                         help="pass in extra defines")
+    parser.add_option("-p", "--plusargs",
+                        action='append',
+                        dest="plusargs",
+                        help="plusargs")
     parser.add_option("-d", "--dumpon",
                         action='store_true',
                         dest="dumpon",
@@ -66,13 +70,23 @@ if __name__ == '__main__':
         t.listTests()
         sys.exit()
 
+    defines = ""
+    plusargs = ""
     if(options.defines):
-        print options.defines
+        print "DEFINES:", options.defines
+        defines = " ".join("%s" % x for x in options.defines)
+
+    if(options.plusargs):
+        print "PLUSARGS:", options.plusargs
+        plusargs = " ".join("%s" % x for x in options.plusargs)
+        print plusargs
 
     if(len(args) > 0):
         target = args[0]
         sim_cfg.verifyTarget(target)
         sim_cfg.genAutoTest()
+        sim_cfg['defines'] += " " + defines
+        sim_cfg['plusargs'] += " " + plusargs
         sim_cfg['outfile'] = sim_cfg.auto_test_path + '/' + 'sim_' + sim_cfg.variant
 
         sim = IcarusVerilog(sim_cfg)

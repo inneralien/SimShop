@@ -20,7 +20,6 @@ class IcarusVerilog(VerilogSim):
         VerilogSim.__init__(self, cfg)
         self.cfg = cfg
         self.compCmd = ['iverilog']
-        self.plusargs = None
 
         ## Default flags specific to Icarus Verilog
         ## and any required list comprehension commands
@@ -60,4 +59,4 @@ class IcarusVerilog(VerilogSim):
                         [self.cfg['auto_test']]
 
     def buildSimCmd(self):
-        self.sim_cmd = self['outfile']
+        self.sim_cmd = self['outfile'] + self['plusargs'].conv()

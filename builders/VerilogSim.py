@@ -14,7 +14,8 @@ class VerilogSim():
         self.flags['test_inc_dirs'] = CmdArgs(cmd=lambda x: self._prependWithPath('-I', x))
         self.flags['rtl_files']     = CmdArgs(cmd=lambda x: self._prependWithPath('', x))
         self.flags['test_files']    = CmdArgs(cmd=lambda x: self._prependWithPath('', x))
-        self.flags['plusargs']      = CmdArgs(cmd=lambda x: self._prependWithPath('+', x))
+#        self.flags['plusargs']      = CmdArgs(value="")
+        self.flags['plusargs']      = CmdArgs(cmd=lambda x: self._prepend('+', x))
 
         self.rel_proj_root = None
 
