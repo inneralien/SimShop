@@ -26,10 +26,25 @@ if __name__ == '__main__':
     print copyright_text
     parser = OptionParser(usage="%prog <options> <testname>", 
         version="%prog alpha v0.1")
-    parser.add_option("-l", "--list_tests",
+    parser.add_option("-l", "--list-tests",
                         action="store_true",
                         dest="list_tests",
                         help="list all available tests")
+    parser.add_option("-n", "--dry-run",
+                        action="store_true",
+                        dest="dry_run",
+                        help="print out the commands that would be executed, but do not execute them")
+    parser.add_option("-c", "--compile-only",
+                        action="store_true",
+                        dest="compile_only",
+                        help="compile the simulation but don't run it")
+#    parser.add_option("-d", "--dumpon",
+#                        action='store_true',
+#                        dest="dumpon",
+#                        help="enable dumping of waveform")
+#    parser.add_option("-o", "--output_dir",
+#                        dest="output_dir",
+#                        help="output build directory")
     parser.add_option("-D", "--defines",
                         action='append',
                         dest="defines",
@@ -38,21 +53,6 @@ if __name__ == '__main__':
                         action='append',
                         dest="plusargs",
                         help="plusargs")
-    parser.add_option("-d", "--dumpon",
-                        action='store_true',
-                        dest="dumpon",
-                        help="enable dumping of waveform")
-#    parser.add_option("-o", "--output_dir",
-#                        dest="output_dir",
-#                        help="output build directory")
-    parser.add_option("-c", "--compile_only",
-                        action="store_true",
-                        dest="compile_only",
-                        help="compile the simulation but don't run it")
-    parser.add_option("-n", "--dry_run",
-                        action="store_true",
-                        dest="dry_run",
-                        help="print out the commands that would be executed, but do not execute them")
 
     # List available tools, i.e. iverilog, vcs, modelsim
     # List available builders, i.e. IcarusVerilog
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 #    auto_test_template_file = 'test_template.py'
 
     sim_cfg = SimCfg.SimCfg()
-## Search for default config files in the usuall places.  The
+## TODO Search for default config files in the usuall places.  The
 ## variant config file can overwrite any value set by a system wide
 ## or user home config file
 ##   System Wide Unix: /etc/rtlcores/xxx.cfg?
@@ -96,12 +96,15 @@ if __name__ == '__main__':
         sim = IcarusVerilog(sim_cfg)
         sim.buildCompCmd()
         sim.buildSimCmd()
-        sim.joinCmds()
-#        print sim.comp_cmd
+        if(options.dry_run):
+            for cmd in sim.cmds:
+                print ">",
+                print " ".join(cmd)
+            sys.exit(0)
         if(not options.compile_only):
+            print "IN compile_only"
             sim.run()
+        else:
+            sim.run(0)
     else:
-#        print " Available Tests"
-#        print "-----------------"
-#        sim_cfg.listTests()
         parser.print_help()

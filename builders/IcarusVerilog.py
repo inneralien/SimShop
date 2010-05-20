@@ -43,8 +43,8 @@ class IcarusVerilog(VerilogSim):
         # Collect the commands into a list of sequential commands
 #        self.cmds = [self.comp_cmd, self.sim_cmd]
 
-    def joinCmds(self):
-        self.cmds = [self.comp_cmd, self.sim_cmd]
+#    def joinCmds(self):
+#        self.cmds = [self.comp_cmd, self.sim_cmd]
 
     def buildCompCmd(self):
 #        self['outfile'] = [self['builddir'][0] + '/' + self['outfile'][0]]
@@ -57,6 +57,8 @@ class IcarusVerilog(VerilogSim):
                         self['rtl_files'].conv() + \
                         self['test_files'].conv() + \
                         [self.cfg['auto_test']]
+        self.cmds.append(self.comp_cmd)
 
     def buildSimCmd(self):
         self.sim_cmd = self['outfile'] + self['plusargs'].conv()
+        self.cmds.append(self.sim_cmd)

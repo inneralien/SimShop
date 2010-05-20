@@ -61,8 +61,13 @@ class VerilogSim():
         s = SimRun(self.build_cmds)
         s.run
 
-    def run(self):
-        s = SimRun(self.cmds)
+    def run(self, index=None):
+        print index
+        if(index is not None):
+            print "Only running", self.cmds[index]
+            s = SimRun([self.cmds[index]])
+        else:
+            s = SimRun(self.cmds)
         s.run()
 
     def buildCmd(self):
