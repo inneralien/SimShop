@@ -6,7 +6,6 @@ from optparse import OptionParser
 import re
 import string
 import distutils.dir_util
-#from distutils import dep_util
 
 from builders.IcarusVerilog import IcarusVerilog
 import SimRun
@@ -59,8 +58,6 @@ if __name__ == '__main__':
     # List available builders, i.e. IcarusVerilog
 
     (options, args) = parser.parse_args()
-
-#    auto_test_template_file = 'test_template.py'
 
     sim_cfg = SimCfg.SimCfg()
 ## TODO Search for default config files in the usuall places.  The
