@@ -11,9 +11,10 @@ import distutils.dir_util
 from builders.IcarusVerilog import IcarusVerilog
 import SimRun
 import SimCfg
-import DefCfg
 import TestFind
 
+__author__ = "Tim Weaver - RTLCores"
+__version__ = "v0.1"
 
 
 if __name__ == '__main__':
