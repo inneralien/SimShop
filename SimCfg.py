@@ -26,6 +26,7 @@ class SimCfg(SafeConfigParser):
         self['timeout'] = '40000000'
         self['builddir'] = 'build'
         self['auto_test_file'] = 'auto_test.v'
+        self['dumpfile'] = 'out.vcd'
 #        self['plusargs'] = ''
 #        self['defines'] = ''
 
@@ -39,7 +40,6 @@ class SimCfg(SafeConfigParser):
             return ''
 
     def __setitem__(self, key, value):
-        print "KEY, VALUE", key, type(value)
         return self.set('DEFAULT', key, value)
 
     def readCfg(self, path=None):
@@ -97,37 +97,24 @@ class SimCfg(SafeConfigParser):
         Generate an auto_test.v file from a template file and a
         replacements dictionary.
         """
-#        print "BULIDDIR", self['BUILDDIR']
-#        print "PROJ_ROOT", self['PROJ_ROOT']
-#        print "path", self.path
         full_path = self.path + '/' + self['PROJ_ROOT']
-#        print "full_path", full_path
         self.rel_proj_root = os.path.normpath(full_path)
-#        print self.rel_proj_root
 
-# build dir is relative to PROJ_ROOT
-        self.auto_test_path =    self.rel_proj_root + \
+        self.build_path =    self.rel_proj_root + \
                             '/' + \
                             self['BUILDDIR'] + \
                             '/' + \
                             self.variant
-#                            '/'
-#                            self['auto_test_file']
 
-
-                           
-#        print "self.auto_test_path", self.auto_test_path
-        distutils.dir_util.mkpath(self.auto_test_path)
-        self['auto_test'] = self.auto_test_path + '/' + self['auto_test_file']
+        distutils.dir_util.mkpath(self.build_path)
+        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
+        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
         s = string.Template(test_template)
-#        f = open(self.auto_test_path + '/' + 'auto_test.v', 'w')
-#        f = open(self.auto_test_path + '/' + self['auto_test_file'], 'w')
         f = open(self['auto_test'], 'w')
-#        print type(self.tasks)
-#        print self.tasks
         f.write(s.safe_substitute( {'timescale': self['timescale'],
                                     'timeout': self['timeout'],
-                                    'tasks': self.tasks})
+                                    'tasks': self.tasks,
+                                    'dumpfile': self['dumpfile']})
         )
         f.close()
 

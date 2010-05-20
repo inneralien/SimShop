@@ -34,7 +34,7 @@ if __name__ == '__main__':
                         action='append',
                         dest="defines",
                         help="pass in extra defines")
-    parser.add_option("-p", "--plusargs",
+    parser.add_option("-p", "--plusarg",
                         action='append',
                         dest="plusargs",
                         help="plusargs")
@@ -49,6 +49,10 @@ if __name__ == '__main__':
                         action="store_true",
                         dest="compile_only",
                         help="compile the simulation but don't run it")
+    parser.add_option("-n", "--dry_run",
+                        action="store_true",
+                        dest="dry_run",
+                        help="print out the commands that would be executed, but do not execute them")
 
     # List available tools, i.e. iverilog, vcs, modelsim
     # List available builders, i.e. IcarusVerilog
@@ -87,13 +91,13 @@ if __name__ == '__main__':
         sim_cfg.genAutoTest()
         sim_cfg['defines'] += " " + defines
         sim_cfg['plusargs'] += " " + plusargs
-        sim_cfg['outfile'] = sim_cfg.auto_test_path + '/' + 'sim_' + sim_cfg.variant
+        sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
 
         sim = IcarusVerilog(sim_cfg)
         sim.buildCompCmd()
         sim.buildSimCmd()
         sim.joinCmds()
-        print sim.comp_cmd
+#        print sim.comp_cmd
         if(not options.compile_only):
             sim.run()
     else:
