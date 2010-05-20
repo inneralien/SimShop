@@ -1,12 +1,12 @@
 test_template = """
 `timescale $timescale
-`include "testlib.vh"
+//`include "testlib.vh"
 
 module auto_test();
   // Setup simulation dumping or not
     initial begin : setup
         $$display("");
-        $$display("<%0t> Dump file set to ./icarus.vcd.", $$time);
+        $$display("<%0t> Dump file set to $dumpfile.", $$time);
         $$dumpfile("$dumpfile");
         if ($$test$$plusargs("DUMPON")) begin
             $$display("<%0t> Dumping started.", $$time);
@@ -17,8 +17,8 @@ module auto_test();
         
         $$display("");
         runsim;
-        $$finish;
-//        `simulation_finish;
+//        $$finish;
+        `simulation_finish;
     end
     
     task runsim;
@@ -27,11 +27,10 @@ module auto_test();
         begin : auto_tests_run
             $$display("<%0t> Starting Auto Tests", $$time);
             $tasks
-            test_task.deser_data_frm;
             disable auto_tests;
         end
         begin
-            #4000000;   // Timeout
+            #$timeout;   // Timeout
             $$display("<%0t> Timeout.", $$time);
             disable auto_tests_run;
             disable auto_tests;
