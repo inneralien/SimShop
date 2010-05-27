@@ -48,6 +48,7 @@ class SimCfg(SafeConfigParser):
         read it in.  If more than one is found raise an exception.
         """
 #        print path
+        self.cfg_files = []
         cfg = re.compile(".*\.cfg$")
         if(path is None):
             path = '.'
@@ -64,6 +65,55 @@ class SimCfg(SafeConfigParser):
 
     def verifyTarget(self, target):
         """
+        Valid target syntax
+        Single targets:
+            - path/variant/test_name
+                - path = path/variant
+                - variant = variant
+                - test = test_name
+            - variant/test_name
+                - path = variant
+                - variant = variant
+                - test = test_name
+            - test_name
+                - path = ./
+                - variant = cwd
+                - test = test_name
+            - test_name (FUTURE)
+                - path = ./
+                - variant = cfg.get('DEFAULT', 'variant') else cwd
+                - test = test_name
+            - path/variant/test_*   (FUTURE: Regular expression in test name)
+                - path = path/variant
+                - variant = variant
+                - test = test_*
+        """
+        (self.path, self.test) = os.path.split(target)
+        if(self.path == ""):
+            self.path = "./"
+        (n, self.variant) = os.path.split(self.path)
+        if(self.variant == ""):
+            (n, self.variant) = os.path.split(os.getcwd())
+        print "PATH:", self.path
+        print "VARIANT:", self.variant
+        print "TEST:", self.test
+        print ""
+        if(os.path.exists(self.path)):
+            print "Path exists"
+            self.readCfg(self.path)
+            if(self.has_section(self.test)):
+                print "Generating test file based on test '%s'" % self.test
+                self.tasks = self.get(self.test, 'TASKS').split()
+                self.tasks = [x+';' for x in self.tasks]
+                self.tasks = "\n".join(str(x) for x in self.tasks)
+            else:
+                raise InvalidTest(self.test)
+        else:
+            print "Path does *not* exist", self.path
+            raise InvalidPath(self.test)
+
+    def verifyTarget_old(self, target):
+        """
         Verify that the name of the target test passed on the command line
         really does exist in the config files.
         """
@@ -77,10 +127,14 @@ class SimCfg(SafeConfigParser):
         try:
             (self.path, self.test) = os.path.split(target)
             (n, self.variant) = os.path.split(self.path)
-#            print self.path, self.test, self.variant
+            print "PATH:", self.path
+            print "TEST:", self.test
+            print "VARIANT:", self.variant
         except:
             self.path = target
             self.test = ''
+        finally:
+            print "in Finally"
 
         if(os.path.exists(self.path)):
             self.readCfg(self.path)
@@ -89,8 +143,12 @@ class SimCfg(SafeConfigParser):
                 self.tasks = self.get(self.test, 'TASKS').split()
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
+                print self.tasks
             else:
                 raise InvalidTest(self.test)
+        else:
+            self.path = "./"
+            print "INVALID PATH"
 
     def genAutoTest(self):
         """
@@ -129,11 +187,11 @@ class MultipleConfigFiles(SimCfgError):
 class NoTestSpecified(SimCfgError):
     def __init__(self, target):
         self.data = target
-#        print "No tests were specified in the target: %s" % \
-#            (target)
 
 class InvalidTest(SimCfgError):
     def __init__(self, test):
         self.data = test
-#        print "An invalid test was specified: %s" % \
-#            (test)
+
+class InvalidPath(SimCfgError):
+    def __init__(self, test):
+        self.data = test

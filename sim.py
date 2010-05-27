@@ -84,25 +84,27 @@ if __name__ == '__main__':
         print plusargs
 
     if(len(args) > 0):
-        target = args[0]
-        sim_cfg.verifyTarget(target)
-        sim_cfg.genAutoTest()
-        sim_cfg['defines'] += " " + defines
-        sim_cfg['plusargs'] += " " + plusargs
-        sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
+#        target = args[0]
+        for target in args:
+            sim_cfg.verifyTarget(target)
+            sim_cfg.genAutoTest()
+            sim_cfg['defines'] += " " + defines
+            sim_cfg['plusargs'] += " " + plusargs
+            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
+#            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.test
 
-        sim = IcarusVerilog(sim_cfg)
-        sim.buildCompCmd()
-        sim.buildSimCmd()
-        if(options.dry_run):
-            for cmd in sim.cmds:
-                print ">",
-                print " ".join(cmd)
-            sys.exit(0)
-        if(not options.compile_only):
-            print "IN compile_only"
-            sim.run()
-        else:
-            sim.run(0)
+            sim = IcarusVerilog(sim_cfg)
+            sim.buildCompCmd()
+            sim.buildSimCmd()
+            if(options.dry_run):
+                for cmd in sim.cmds:
+                    print ">",
+                    print " ".join(cmd)
+                sys.exit(0)
+            if(not options.compile_only):
+                print "IN compile_only"
+                sim.run()
+            else:
+                sim.run(0)
     else:
         parser.print_help()
