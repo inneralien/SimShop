@@ -13,7 +13,7 @@ import SimCfg
 import TestFind
 
 __author__ = "Tim Weaver - RTLCores"
-__version__ = "v0.1"
+__version__ = "v0.2"
 
 
 if __name__ == '__main__':
