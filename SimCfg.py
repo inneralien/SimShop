@@ -24,7 +24,7 @@ class SimCfg(SafeConfigParser):
         self.tasks = []
         self['timescale'] = '1ns / 10ps'
         self['timeout'] = '40000000'
-        self['builddir'] = 'build'
+        self['builddir'] = 'simbuild'
         self['auto_test_file'] = 'auto_test.v'
         self['dumpfile'] = 'out.vcd'
 #        self['plusargs'] = ''
@@ -150,7 +150,7 @@ class SimCfg(SafeConfigParser):
             self.path = "./"
             print "INVALID PATH"
 
-    def genAutoTest(self):
+    def genAutoTest(self, dry_run=False, use_variant_dir=False):
         """
         Generate an auto_test.v file from a template file and a
         replacements dictionary.
@@ -158,23 +158,36 @@ class SimCfg(SafeConfigParser):
         full_path = self.path + '/' + self['PROJ_ROOT']
         self.rel_proj_root = os.path.normpath(full_path)
 
-        self.build_path =    self.rel_proj_root + \
-                            '/' + \
-                            self['BUILDDIR'] + \
-                            '/' + \
-                            self.variant
+        if(use_variant_dir == False):
+            build_path =    self.rel_proj_root + \
+                                '/' + \
+                                self['BUILDDIR'] + \
+                                '/' + \
+                                self.variant + \
+                                '/' + \
+                                self.test
+        else:
+            build_path =   self.path + \
+                                '/' + \
+                                self['BUILDDIR'] + \
+                                '/' + \
+                                self.test
 
-        distutils.dir_util.mkpath(self.build_path)
-        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
-        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
-        s = string.Template(test_template)
-        f = open(self['auto_test'], 'w')
-        f.write(s.safe_substitute( {'timescale': self['timescale'],
-                                    'timeout': self['timeout'],
-                                    'tasks': self.tasks,
-                                    'dumpfile': self['dumpfile']})
-        )
-        f.close()
+        self.build_path = os.path.normpath(build_path)
+        if(dry_run is True):
+            print "Build Path:", self.build_path
+        else:
+            distutils.dir_util.mkpath(self.build_path)
+            self['auto_test'] = self.build_path + '/' + self['auto_test_file']
+            self['dumpfile'] = self.build_path + '/' + self['dumpfile']
+            s = string.Template(test_template)
+            f = open(self['auto_test'], 'w')
+            f.write(s.safe_substitute( {'timescale': self['timescale'],
+                                        'timeout': self['timeout'],
+                                        'tasks': self.tasks,
+                                        'dumpfile': self['dumpfile']})
+            )
+            f.close()
 
 class SimCfgError(Exception):
     """Base class for exceptions"""

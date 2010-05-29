@@ -16,8 +16,8 @@ module auto_test();
         $$display("<%0t> Dumping has been turned OFF. Nothing will be dumped.", $$time);
         
         $$display("");
+        `reset_chip;
         runsim;
-//        $$finish;
         `simulation_finish;
     end
     

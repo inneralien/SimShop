@@ -23,7 +23,7 @@ class IcarusVerilog(VerilogSim):
 
         ## Default flags specific to Icarus Verilog
         ## and any required list comprehension commands
-        self['compCmd'] = ['iverilog']
+        self['compCmd'] = ['iverilog'] # -n = non-interactive mode
         self['builddir'] = ['run']
         self['warn'] = ['all']
         self['warn'].cmd = lambda x: self._prepend('-W', x)
@@ -60,5 +60,6 @@ class IcarusVerilog(VerilogSim):
         self.cmds.append(self.comp_cmd)
 
     def buildSimCmd(self):
-        self.sim_cmd = self['outfile'] + self['plusargs'].conv()
+        log = '-l' + self.cfg.build_path + '/' + 'sim.log'
+        self.sim_cmd = ['vvp'] + ['-n'] + [log] + self['outfile'] + self['plusargs'].conv()
         self.cmds.append(self.sim_cmd)

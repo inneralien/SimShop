@@ -53,6 +53,10 @@ if __name__ == '__main__':
                         action='append',
                         dest="plusargs",
                         help="plusargs")
+    parser.add_option("--clean",
+                        action="store_true",
+                        dest="clean",
+                        help="clean the simbuild directory")
 
     # List available tools, i.e. iverilog, vcs, modelsim
     # List available builders, i.e. IcarusVerilog
@@ -87,18 +91,19 @@ if __name__ == '__main__':
 #        target = args[0]
         for target in args:
             sim_cfg.verifyTarget(target)
-            sim_cfg.genAutoTest()
+            sim_cfg.genAutoTest(options.dry_run, True)
             sim_cfg['defines'] += " " + defines
             sim_cfg['plusargs'] += " " + plusargs
-            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
+#            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
 #            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.test
+            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
 
             sim = IcarusVerilog(sim_cfg)
             sim.buildCompCmd()
             sim.buildSimCmd()
             if(options.dry_run):
                 for cmd in sim.cmds:
-                    print ">",
+#                    print ">",
                     print " ".join(cmd)
                 sys.exit(0)
             if(not options.compile_only):
