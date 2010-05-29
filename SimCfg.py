@@ -32,7 +32,7 @@ class SimCfg(SafeConfigParser):
 
     def __getitem__(self, item):
         try:
-            value = self.get('DEFAULT', item)
+            value = self.get(self.test, item)
             return value
         except NoOptionError, (instance):
             print "LOG - missing config option: '%s'" % item
@@ -40,7 +40,7 @@ class SimCfg(SafeConfigParser):
             return ''
 
     def __setitem__(self, key, value):
-        return self.set('DEFAULT', key, value)
+        return self.set(self.test, key, value)
 
     def readCfg(self, path=None):
         """

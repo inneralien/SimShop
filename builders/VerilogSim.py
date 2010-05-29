@@ -49,7 +49,7 @@ class VerilogSim():
         This is where the config file items get converted into
         CmdArgs.
         """
-        for name,value in self.cfg.items('DEFAULT'):
+        for name,value in self.cfg.items(self.cfg.test):
             self[name] = value.split()
         self.setRelativeRoot()
 
