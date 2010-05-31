@@ -25,7 +25,7 @@ if __name__ == '__main__':
 """
     print copyright_text
     parser = OptionParser(usage="%prog <options> <testname>", 
-        version="%prog alpha v0.1")
+        version="%s alpha" % (__version__))
     parser.add_option("-l", "--list-tests",
                         action="store_true",
                         dest="list_tests",
