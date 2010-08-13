@@ -10,18 +10,18 @@ module auto_test();
         $$dumpfile("$dumpfile");
         if ($$test$$plusargs("DUMPON")) begin
             $$display("<%0t> Dumping started.", $$time);
-            $$dumpvars(0,tb);
+            $dumpvars
         end
         else
         $$display("<%0t> Dumping has been turned OFF. Nothing will be dumped.", $$time);
-        
+
         $$display("");
         #0;
         tb.chip_reset(10);
         runsim;
         `simulation_finish;
     end
-    
+
     task runsim;
     begin
         fork : auto_tests

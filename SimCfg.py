@@ -27,6 +27,7 @@ class SimCfg(SafeConfigParser):
         self['builddir'] = 'simbuild'
         self['auto_test_file'] = 'auto_test.v'
         self['dumpfile'] = 'out.vcd'
+        self['dumpvars'] = '(0,tb)'
 #        self['plusargs'] = ''
 #        self['defines'] = ''
 
@@ -123,7 +124,7 @@ class SimCfg(SafeConfigParser):
             pass
         else:
             raise NoTestSpecified(self.target)
-        
+
         try:
             (self.path, self.test) = os.path.split(target)
             (n, self.variant) = os.path.split(self.path)
@@ -173,19 +174,30 @@ class SimCfg(SafeConfigParser):
                                 '/' + \
                                 self.test
 
+        ## Dumpvars
+        dumpvars = ""
+        # search for strings like this (0, tb)
+        dumpvars_re = re.compile('\(\d+\s*,\s*\w+\)')
+        s = dumpvars_re.findall(self['DUMPVARS'])
+        for i in s:
+            dumpvars += "$dumpvars%s;" % i
+        # TODO Should probably put some error checking here
+
         self.build_path = os.path.normpath(build_path)
+        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
+        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
         if(dry_run is True):
             print "Build Path:", self.build_path
         else:
             distutils.dir_util.mkpath(self.build_path)
-            self['auto_test'] = self.build_path + '/' + self['auto_test_file']
-            self['dumpfile'] = self.build_path + '/' + self['dumpfile']
             s = string.Template(test_template)
             f = open(self['auto_test'], 'w')
             f.write(s.safe_substitute( {'timescale': self['timescale'],
                                         'timeout': self['timeout'],
                                         'tasks': self.tasks,
-                                        'dumpfile': self['dumpfile']})
+                                        'dumpfile': self['dumpfile'],
+                                        'dumpvars': dumpvars
+                                        })
             )
             f.close()
 
