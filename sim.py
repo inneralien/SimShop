@@ -24,7 +24,7 @@ if __name__ == '__main__':
 =========================================================
 """
     print copyright_text
-    parser = OptionParser(usage="%prog <options> <testname>", 
+    parser = OptionParser(usage="%prog <options> <testname>",
         version="%s alpha" % (__version__))
     parser.add_option("-l", "--list-tests",
                         action="store_true",
@@ -52,7 +52,8 @@ if __name__ == '__main__':
     parser.add_option("-p", "--plusarg",
                         action='append',
                         dest="plusargs",
-                        help="plusargs")
+                        help="""Pass plusargs to the simulation.
+                        sim -pDUMPON <testname>""")
     parser.add_option("--clean",
                         action="store_true",
                         dest="clean",
