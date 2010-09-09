@@ -32,6 +32,7 @@ module auto_test();
         end
         begin
             #$timeout;   // Timeout
+            `report_error("Test Timeout Error");
             $$display("<%0t> Timeout.", $$time);
             disable auto_tests_run;
             disable auto_tests;
