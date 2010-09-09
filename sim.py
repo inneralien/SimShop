@@ -91,7 +91,15 @@ if __name__ == '__main__':
     if(len(args) > 0):
 #        target = args[0]
         for target in args:
-            sim_cfg.verifyTarget(target)
+            try:
+                sim_cfg.verifyTarget(target)
+            except SimCfg.InvalidTest, info:
+                print "The test '%s' does not exist. Check your spelling." % info.data
+                sys.exit(1)
+            except SimCfg.InvalidPath, info:
+                print "The path '%s' does not exist." % info.data
+                sys.exit(1)
+
             sim_cfg.genAutoTest(options.dry_run, True)
             sim_cfg['defines'] += " " + defines
             sim_cfg['plusargs'] += " " + plusargs
@@ -109,7 +117,10 @@ if __name__ == '__main__':
                 sys.exit(0)
             if(not options.compile_only):
                 print "IN compile_only"
-                sim.run()
+                try:
+                    sim.run()
+                except SimRun.ProcessFail, info:
+                    print "The process exited with an error"
             else:
                 sim.run(0)
     else:

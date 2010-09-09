@@ -100,7 +100,6 @@ class SimCfg(SafeConfigParser):
         print "TEST:", self.test
         print ""
         if(os.path.exists(self.path)):
-            print "Path exists"
             self.readCfg(self.path)
             if(self.has_section(self.test)):
                 print "Generating test file based on test '%s'" % self.test
@@ -110,7 +109,6 @@ class SimCfg(SafeConfigParser):
             else:
                 raise InvalidTest(self.test)
         else:
-            print "Path does *not* exist", self.path
             raise InvalidPath(self.test)
 
     def verifyTarget_old(self, target):
