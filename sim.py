@@ -38,10 +38,10 @@ if __name__ == '__main__':
                         action="store_true",
                         dest="compile_only",
                         help="compile the simulation but don't run it")
-#    parser.add_option("-d", "--dumpon",
-#                        action='store_true',
-#                        dest="dumpon",
-#                        help="enable dumping of waveform")
+    parser.add_option("-d", "--dumpon",
+                        action='store_true',
+                        dest="dumpon",
+                        help="enable dumping of waveform")
 #    parser.add_option("-o", "--output_dir",
 #                        dest="output_dir",
 #                        help="output build directory")
@@ -83,10 +83,12 @@ if __name__ == '__main__':
         print "DEFINES:", options.defines
         defines = " ".join("%s" % x for x in options.defines)
 
+    if(options.dumpon):
+        options.plusargs.append('DUMPON')
+
     if(options.plusargs):
         print "PLUSARGS:", options.plusargs
-        plusargs = " ".join("%s" % x for x in options.plusargs)
-        print plusargs
+        plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):
 #        target = args[0]
