@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser.add_option("-p", "--plusarg",
                         action='append',
                         dest="plusargs",
+                        default=[],
                         help="""Pass plusargs to the simulation.
                         sim -pDUMPON <testname>""")
     parser.add_option("--clean",
