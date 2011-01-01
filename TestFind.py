@@ -3,7 +3,7 @@ from ConfigParser import SafeConfigParser
 
 class TestFind():
     """
-    This class is used to find any variant config files and list the 
+    This class is used to find any variant config files and list the
     tests that they contain.
     It walks the directory tree starting at ./ looking for any file
     with the extension .cfg.
@@ -42,11 +42,19 @@ class TestFind():
                     proj_root = ''
                 path = os.path.normpath(os.path.split(config)[0])
                 print "%s/" % (path) #, cfg.cp.get('DEFAULT', 'VARIANT_NAME'))
-                for section in cfg.sections():
+                a = cfg.sections()
+                a.sort()
+                for section in a:
                     print "    %s" % section
         print ""
         print "To run a simulation:"
         print "simulate <path_to/variant>/<test>"
+        print ""
+        print "Example:"
+        if(path == "."):
+            print "    sim %s" % (a[0])
+        else:
+            print "    sim %s/%s" % (path, a[0])
         print ""
 
 
