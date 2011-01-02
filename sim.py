@@ -96,6 +96,16 @@ if __name__ == '__main__':
         for target in args:
             try:
                 sim_cfg.verifyTarget(target)
+            except SimCfg.MultipleConfigFiles, info:
+                print "==== Error ===="
+                print "Either there are multiple .cfg files in the current directory"
+                print "or you need to give a path to the variant on which you want to"
+                print "run a test."
+                print ""
+                print "I found the following config files:"
+                for i in info.data:
+                    print "  %s" % i
+                sys.exit(1)
             except SimCfg.InvalidTest, info:
                 print "The test '%s' does not exist. Check your spelling." % info.data
                 sys.exit(1)
