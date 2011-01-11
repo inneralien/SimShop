@@ -12,7 +12,7 @@ class SimRun():
         self.show_cmds = bool(enable)
 
     def run(self):
-        print len(self.cmds)
+#        print len(self.cmds)
         for cmd in self.cmds:
             if(self.show_cmds):
 #                print ">",
@@ -22,12 +22,12 @@ class SimRun():
 #                run_process = subprocess.Popen(cmd, stdout=f)
 #                run_process = subprocess.Popen(cmd, stdout=f)
                 (stdout, stderr) = run_process.communicate()
-                print "STDOUT", stdout
+#                print "STDOUT", stdout
                 if(run_process.returncode):
-                    print "RAISE", stdout, stderr
+#                    print "RAISE", stdout, stderr
                     raise ProcessFail
             except OSError, (instance):
-                print instance
+#                print instance
                 break
             except KeyboardInterrupt:
                 print "KeyboardInterrupt Caught... terminating simulation"
@@ -35,9 +35,12 @@ class SimRun():
 #                print "STUFF", stdout, stderr
 #                run_process.terminate() # Only works with Py2.6+
             finally:
-                f = open('out.log', 'w')
-                print stdout, stderr
-                f.close()
+#                f = open('out.log', 'w')
+                if(stdout is not None):
+                    print stdout
+                if(stderr is not None):
+                    print stderr
+#                f.close()
 
 class ProcessFail(Exception):
     def __init__(self):

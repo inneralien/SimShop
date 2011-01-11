@@ -125,11 +125,9 @@ if __name__ == '__main__':
             sim.buildSimCmd()
             if(options.dry_run):
                 for cmd in sim.cmds:
-#                    print ">",
                     print " ".join(cmd)
                 sys.exit(0)
             if(not options.compile_only):
-                print "IN compile_only"
                 try:
                     sim.run()
                 except SimRun.ProcessFail, info:
