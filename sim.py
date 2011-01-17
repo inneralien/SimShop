@@ -82,8 +82,10 @@ if __name__ == '__main__':
         t = TestFind.TestFind()
         if(len(args) > 0):
             t.buildTestStruct(args[0])
+            t.listTests()
         else:
             t.buildTestStruct()
+            t.listTests()
         sys.exit()
 
     defines = ""

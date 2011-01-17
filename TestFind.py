@@ -67,23 +67,43 @@ class TestFind():
                         variant_name = os.path.normpath(os.path.split(os.getcwd())[1])
                     else:
                         variant_name = path
-#                print "Path: %s/" % (path)
-#                print "Config: %s" % (config)
-#                print "Variant: %s" % (variant_name)
-#                print ""
                 a = cfg.sections()
                 a.sort()
                 self.variants_and_tests.append({variant_name: {path: a}})
-        for i in self.variants_and_tests:
-            for v in i:                     # Variant
-#                print "Variant: %s" % v
-                for p in i[v]:              # Path
-                    print "%s/" % p
-                    for t in i[v][p]:       # Tests
-                        print "    %s" % t
-            print ""
 
     def listTests(self):
+        """
+        List all available tests in the test structure.
+        """
+        last_path = ''
+        last_test = ''
+        if(self.variants_and_tests is None):
+            raise NoTestStructure('listTests', 'No tests were found to list','buildTestStruct() must be run first')
+        for i in self.variants_and_tests:
+                # Variant
+            for v in i:
+                    # Path
+                for p in i[v]:
+                    last_path = p           # Store the last path
+                    print "%s/" % p
+                        # Test
+                    for t in i[v][p]:
+                        last_test = t       # Store the last test
+                        print "    %s" % t
+            print ""
+        print ""
+        print "To run a simulation:"
+        print "sim <path_to/variant>/<test>"
+        print ""
+        print "Example:"
+        if(last_path == "."):
+            print "    sim %s" % (last_test)
+        else:
+            print "    sim %s/%s" % (last_path, last_test)
+        print ""
+
+
+    def listTests_orig(self):
         """
         List all available tests from the current working directory down.
         """
@@ -113,4 +133,13 @@ class TestFind():
             print "    sim %s/%s" % (path, a[0])
         print ""
 
+class TestFindError(Exception):
+    def __init__(self, method_name, short_message, long_message):
+        Exception.__init__(self)
+        self.method_name = method_name
+        self.error_message = error_message
+        self.long_message = long_message
 
+class NoTestStructure(TestFindError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
