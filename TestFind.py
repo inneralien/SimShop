@@ -77,7 +77,7 @@ class TestFind():
         """
         last_path = ''
         last_test = ''
-        if(self.variants_and_tests is None):
+        if(len(self.variants_and_tests) == 0):
             raise NoTestStructure('listTests', 'No tests were found to list','buildTestStruct() must be run first')
         for i in self.variants_and_tests:
                 # Variant
@@ -134,7 +134,7 @@ class TestFind():
         print ""
 
 class TestFindError(Exception):
-    def __init__(self, method_name, short_message, long_message):
+    def __init__(self, method_name, error_message, long_message):
         Exception.__init__(self)
         self.method_name = method_name
         self.error_message = error_message
@@ -142,4 +142,4 @@ class TestFindError(Exception):
 
 class NoTestStructure(TestFindError):
     def __init__(self, method_name, error_message, long_message):
-        BaseError.__init__(self, method_name, error_message, long_message)
+        TestFindError.__init__(self, method_name, error_message, long_message)
