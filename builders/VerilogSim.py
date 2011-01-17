@@ -61,14 +61,12 @@ class VerilogSim():
         s = SimRun(self.build_cmds)
         s.run
 
-    def run(self, index=None):
-        print index
+    def run(self, index=None, store_stdio=False):
         if(index is not None):
-            print "Only running", self.cmds[index]
             s = SimRun([self.cmds[index]])
         else:
             s = SimRun(self.cmds)
-        s.run()
+        s.run(store_stdio=store_stdio)
 
     def buildCmd(self):
         print "VerilogSim: Overload this method to create a custom command"

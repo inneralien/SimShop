@@ -11,17 +11,38 @@ class SimRun():
     def showCmds(self, enable):
         self.show_cmds = bool(enable)
 
-    def run(self):
+    def run(self, store_stdio=False):
 #        print len(self.cmds)
+        if(store_stdio is True):
+            print "****************************"
+            print "TBD: Make this message clear"
+            print "****************************"
+            print "-- Collecting stdout/stderr for error tabulation --"
+            print "-- You will *not* see any output from this simulation --"
+            print "-- until it has completed. --"
         for cmd in self.cmds:
             if(self.show_cmds):
 #                print ">",
                 print " ".join(cmd)
             try:
-                run_process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+                if(store_stdio is True):
+                    print ""
+                    print "Running with tabulation"
+                    print ""
+                    run_process = subprocess.Popen(cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+                    (stdout, stderr) = run_process.communicate()
+                else:
+                    print ""
+                    print "Running without tabulation"
+                    print ""
+                    run_process = subprocess.Popen(cmd,
+#                        stderr=subprocess.PIPE)
+                    )
+                    (stdout, stderr) = run_process.communicate()
 #                run_process = subprocess.Popen(cmd, stdout=f)
 #                run_process = subprocess.Popen(cmd, stdout=f)
-                (stdout, stderr) = run_process.communicate()
 #                print "STDOUT", stdout
                 if(run_process.returncode):
 #                    print "RAISE", stdout, stderr
@@ -37,6 +58,7 @@ class SimRun():
             finally:
 #                f = open('out.log', 'w')
                 if(stdout is not None):
+                    print "PRINTING STDOUT"
                     print stdout
                 if(stderr is not None):
                     print stderr

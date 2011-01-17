@@ -19,17 +19,22 @@ __version__ = "v0.6.2 alpha"
 if __name__ == '__main__':
     copyright_text = \
 """\
-============================================================
- RTLCores Simulation Script %s - Copyright (C) 2010
-============================================================
+
+  RTLCores Simulation Script
+  Copyright (C) 2010-2011
+  %s
 """ % __version__
     print copyright_text
-    parser = OptionParser(usage="%prog <options> <testname>",
+    parser = OptionParser(usage="%prog [options] [testname]",
         version="%s" % (__version__))
     parser.add_option("-l", "--list-tests",
                         action="store_true",
                         dest="list_tests",
                         help="list all available tests")
+    parser.add_option("-t", "--tabulate",
+                        action="store_true",
+                        dest="tabulate",
+                        help="tabulate errors and warning from the simulations")
     parser.add_option("-n", "--dry-run",
                         action="store_true",
                         dest="dry_run",
@@ -75,7 +80,10 @@ if __name__ == '__main__':
 
     if(options.list_tests):
         t = TestFind.TestFind()
-        t.listTests()
+        if(len(args) > 0):
+            t.buildTestStruct(args[0])
+        else:
+            t.buildTestStruct()
         sys.exit()
 
     defines = ""
@@ -92,7 +100,6 @@ if __name__ == '__main__':
         plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):
-#        target = args[0]
         for target in args:
             try:
                 sim_cfg.verifyTarget(target)
@@ -129,10 +136,11 @@ if __name__ == '__main__':
                 sys.exit(0)
             if(not options.compile_only):
                 try:
-                    sim.run()
+                    sim.run(store_stdio=options.tabulate)
                 except SimRun.ProcessFail, info:
                     print "The process exited with an error"
             else:
+                print "--Compile only--"
                 sim.run(0)
     else:
         parser.print_help()
