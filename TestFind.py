@@ -29,6 +29,8 @@ class TestFind():
                         cfg_file = "%s%s%s" % (directory, os.sep, f)
                         self.cfg_files.append(cfg_file)
 #                        self.read(self.cfg_file)
+        if(len(self.cfg_files) == 0):
+            raise NoConfigFileFound('getCfgs', 'There were no config files found in the current path.', None)
         print "Found the following config files"
         print "--------------------------------"
         for file in self.cfg_files:
@@ -139,6 +141,10 @@ class TestFindError(Exception):
         self.method_name = method_name
         self.error_message = error_message
         self.long_message = long_message
+
+class NoConfigFileFound(TestFindError):
+    def __init__(self, method_name, error_message, long_message):
+        TestFindError.__init__(self, method_name, error_message, long_message)
 
 class NoTestStructure(TestFindError):
     def __init__(self, method_name, error_message, long_message):

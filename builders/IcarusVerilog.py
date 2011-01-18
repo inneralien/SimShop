@@ -3,7 +3,7 @@ import distutils.dir_util
 
 class IcarusVerilog(VerilogSim):
     """
-    Icarus Verilog class to build a compile command and a 
+    Icarus Verilog class to build a compile command and a
     simulation command.
     Inherits VerilogSim
 
@@ -35,19 +35,7 @@ class IcarusVerilog(VerilogSim):
         ## in the config file
         self.populate()
 
-#        self.buildCompCmd()
-#        self.buildSimCmd()
-        # Create the builddir if it doesn't exist
-#        distutils.dir_util.mkpath(self['builddir'][0])
-
-        # Collect the commands into a list of sequential commands
-#        self.cmds = [self.comp_cmd, self.sim_cmd]
-
-#    def joinCmds(self):
-#        self.cmds = [self.comp_cmd, self.sim_cmd]
-
     def buildCompCmd(self):
-#        self['outfile'] = [self['builddir'][0] + '/' + self['outfile'][0]]
         self.comp_cmd = self['compCmd'] +  \
                         self['warn'].conv() +  \
                         self['outfile'].conv() + \
@@ -60,6 +48,6 @@ class IcarusVerilog(VerilogSim):
         self.cmds.append(self.comp_cmd)
 
     def buildSimCmd(self):
-        log = '-l' + self.cfg.build_path + '/' + 'sim.log'
+        log = '-l' + self.cfg.build_path + '/' + self.cfg['logfile']
         self.sim_cmd = ['vvp'] + ['-n'] + [log] + self['outfile'] + self['plusargs'].conv()
         self.cmds.append(self.sim_cmd)

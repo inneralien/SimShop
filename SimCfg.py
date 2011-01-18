@@ -28,6 +28,7 @@ class SimCfg(SafeConfigParser):
         self['auto_test_file'] = 'auto_test.v'
         self['dumpfile'] = 'out.vcd'
         self['dumpvars'] = '(0,tb)'
+        self['logfile'] = 'sim.log'
 #        self['plusargs'] = ''
 #        self['defines'] = ''
 

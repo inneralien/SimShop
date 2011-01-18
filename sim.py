@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+# Copyright (C) 2010-2011 RTLCores LLC.
+# http://rtlcores.com
+
 import sys
 from optparse import OptionParser
 import re
@@ -8,6 +11,7 @@ import string
 import distutils.dir_util
 
 from builders.IcarusVerilog import IcarusVerilog
+import ScoreBoard
 import SimRun
 import SimCfg
 import TestFind
@@ -24,8 +28,13 @@ if __name__ == '__main__':
   Copyright (C) 2010-2011
   %s
 """ % __version__
-    print copyright_text
-    parser = OptionParser(usage="%prog [options] [testname]",
+    usage = \
+"""\
+usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
+           [-p <plusarg>] [--clean] [<path_to/variant/testname>]"""
+#    print copyright_text
+    parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
+#    parser = OptionParser(usage=usage,
         version="%s" % (__version__))
     parser.add_option("-l", "--list-tests",
                         action="store_true",
@@ -34,7 +43,7 @@ if __name__ == '__main__':
     parser.add_option("-t", "--tabulate",
                         action="store_true",
                         dest="tabulate",
-                        help="tabulate errors and warning from the simulations")
+                        help="tabulate errors and warnings from the simulations")
     parser.add_option("-n", "--dry-run",
                         action="store_true",
                         dest="dry_run",
@@ -46,10 +55,13 @@ if __name__ == '__main__':
     parser.add_option("-d", "--dumpon",
                         action='store_true',
                         dest="dumpon",
-                        help="enable dumping of waveform")
-#    parser.add_option("-o", "--output_dir",
-#                        dest="output_dir",
-#                        help="output build directory")
+                        help="enable dumping of waveform. This is the same as -DDUMPON")
+#    parser.add_option("-m", "--match",
+#                        action='append',
+#                        dest="match",
+#                        default=[],
+#                        metavar='NAME',
+#                        help="run all tests that match the NAME")
     parser.add_option("-D", "--defines",
                         action='append',
                         dest="defines",
@@ -71,7 +83,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     sim_cfg = SimCfg.SimCfg()
-## TODO Search for default config files in the usuall places.  The
+## TODO Search for default config files in the usual places.  The
 ## variant config file can overwrite any value set by a system wide
 ## or user home config file
 ##   System Wide Unix: /etc/rtlcores/xxx.cfg?
@@ -80,13 +92,16 @@ if __name__ == '__main__':
 
     if(options.list_tests):
         t = TestFind.TestFind()
-        if(len(args) > 0):
-            t.buildTestStruct(args[0])
-            t.listTests()
-        else:
-            t.buildTestStruct()
-            t.listTests()
-        sys.exit()
+        try:
+            if(len(args) > 0):
+                t.buildTestStruct(args[0])
+                t.listTests()
+            else:
+                t.buildTestStruct()
+                t.listTests()
+        except TestFind.TestFindError, info:
+            print info.error_message
+        sys.exit(1)
 
     defines = ""
     plusargs = ""
@@ -130,6 +145,8 @@ if __name__ == '__main__':
             sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
 
             sim = IcarusVerilog(sim_cfg)
+            score_board = ScoreBoard.ScoreBoard(sim_cfg)
+
             sim.buildCompCmd()
             sim.buildSimCmd()
             if(options.dry_run):
@@ -144,5 +161,9 @@ if __name__ == '__main__':
             else:
                 print "--Compile only--"
                 sim.run(0)
+                print sim.cfg.variant
+                print sim.cfg.path
+                print sim.cfg.build_path
+                print sim.cfg.tasks
     else:
         parser.print_help()
