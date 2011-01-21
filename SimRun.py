@@ -50,8 +50,8 @@ class SimRun():
             except OSError, (instance):
 #                print instance
                 break
-            except KeyboardInterrupt:
-                print "KeyboardInterrupt Caught... terminating simulation"
+#            except KeyboardInterrupt:
+#                print "KeyboardInterrupt Caught... terminating simulation"
 #                (stdout, stderr) = run_process.communicate()
 #                print "STUFF", stdout, stderr
 #                run_process.terminate() # Only works with Py2.6+

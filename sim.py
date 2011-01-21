@@ -82,7 +82,6 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
 
     (options, args) = parser.parse_args()
 
-    sim_cfg = SimCfg.SimCfg()
 ## TODO Search for default config files in the usual places.  The
 ## variant config file can overwrite any value set by a system wide
 ## or user home config file
@@ -117,53 +116,74 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
         plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):
-        for target in args:
-            try:
-                sim_cfg.verifyTarget(target)
-            except SimCfg.MultipleConfigFiles, info:
-                print "==== Error ===="
-                print "Either there are multiple .cfg files in the current directory"
-                print "or you need to give a path to the variant on which you want to"
-                print "run a test."
-                print ""
-                print "I found the following config files:"
-                for i in info.data:
-                    print "  %s" % i
-                sys.exit(1)
-            except SimCfg.InvalidTest, info:
-                print "The test '%s' does not exist. Check your spelling." % info.data
-                sys.exit(1)
-            except SimCfg.InvalidPath, info:
-                print "The path '%s' does not exist." % info.data
-                sys.exit(1)
+        score_board = ScoreBoard.ScoreBoard()
+        score_board.addErrorRegex(re.compile(r'ERROR:'))
+#        score_board.addErrorRegex(re.compile(r'TEST_PASS'))
+        score_board.addWarningRegex(re.compile(r'WARNING:'))
+        score_board.setTestBeginRegex(re.compile(r'TEST_BEGIN'))
+        score_board.setTestEndRegex(re.compile(r'TEST_END'))
 
-            sim_cfg.genAutoTest(options.dry_run, True)
-            sim_cfg['defines'] += " " + defines
-            sim_cfg['plusargs'] += " " + plusargs
+        cfg_list = []
+        try:
+            for target in args:
+                try:
+                        # Make a new sim_cfg for each new target
+                        # We don't want stale variables from previous runs
+                    sim_cfg = SimCfg.SimCfg()
+                    cfg_list.append(sim_cfg)
+                    sim_cfg.verifyTarget(target)
+                except SimCfg.MultipleConfigFiles, info:
+                    print "==== Error ===="
+                    print "Either there are multiple .cfg files in the current directory"
+                    print "or you need to give a path to the variant on which you want to"
+                    print "run a test."
+                    print ""
+                    print "I found the following config files:"
+                    for i in info.data:
+                        print "  %s" % i
+                    sys.exit(1)
+                except SimCfg.InvalidTest, info:
+                    print "The test '%s' does not exist. Check your spelling." % info.data
+                    sys.exit(1)
+                except SimCfg.InvalidPath, info:
+                    print "The path '%s' does not exist." % info.data
+                    sys.exit(1)
+
+                sim_cfg.genAutoTest(options.dry_run, True)
+                sim_cfg['defines'] += " " + defines
+                sim_cfg['plusargs'] += " " + plusargs
 #            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
 #            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.test
-            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
+                sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
 
-            sim = IcarusVerilog(sim_cfg)
-            score_board = ScoreBoard.ScoreBoard(sim_cfg)
+                sim = IcarusVerilog(sim_cfg)
 
-            sim.buildCompCmd()
-            sim.buildSimCmd()
-            if(options.dry_run):
-                for cmd in sim.cmds:
-                    print " ".join(cmd)
-                sys.exit(0)
-            if(not options.compile_only):
-                try:
-                    sim.run(store_stdio=options.tabulate)
-                except SimRun.ProcessFail, info:
-                    print "The process exited with an error"
-            else:
-                print "--Compile only--"
-                sim.run(0)
-                print sim.cfg.variant
-                print sim.cfg.path
-                print sim.cfg.build_path
-                print sim.cfg.tasks
+                sim.buildCompCmd()
+                sim.buildSimCmd()
+                if(options.dry_run):
+                    for cmd in sim.cmds:
+                        print " ".join(cmd)
+                    sys.exit(0)
+                if(not options.compile_only):
+                    try:
+                        sim.run(store_stdio=options.tabulate)
+#                        score_board.scoreTestFromCfg(sim_cfg)
+                    except SimRun.ProcessFail, info:
+                        print "The process exited with an error"
+                else:
+                    print "--Compile only--"
+                    sim.run(0)
+                    print sim.cfg['logfile']
+                    print sim.cfg.variant
+                    print sim.cfg.test
+                    print sim.cfg.path
+                    print sim.cfg.build_path
+                    print sim.cfg.tasks
+        except KeyboardInterrupt:
+                print "KeyboardInterrupt Caught... terminating simulation"
+        finally:
+            for cfg in cfg_list:
+                score_board.scoreTestFromCfg(cfg)
+                score_board.printReport()
     else:
         parser.print_help()

@@ -105,6 +105,7 @@ class SimCfg(SafeConfigParser):
             if(self.has_section(self.test)):
                 print "Generating test file based on test '%s'" % self.test
                 self.tasks = self.get(self.test, 'TASKS').split()
+                self.task_list = list(self.tasks)
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
             else:
