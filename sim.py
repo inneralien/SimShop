@@ -4,7 +4,7 @@
 # Copyright (C) 2010-2011 RTLCores LLC.
 # http://rtlcores.com
 
-import sys
+import sys,os
 from optparse import OptionParser
 import re
 import string
@@ -118,7 +118,6 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
     if(len(args) > 0):
         score_board = ScoreBoard.ScoreBoard()
         score_board.addErrorRegex(re.compile(r'ERROR:'))
-#        score_board.addErrorRegex(re.compile(r'TEST_PASS'))
         score_board.addWarningRegex(re.compile(r'WARNING:'))
         score_board.setTestBeginRegex(re.compile(r'TEST_BEGIN'))
         score_board.setTestEndRegex(re.compile(r'TEST_END'))
@@ -148,6 +147,16 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
                 except SimCfg.InvalidPath, info:
                     print "The path '%s' does not exist." % info.data
                     sys.exit(1)
+                except Exception:
+                    print "** Error **"
+                    print "Unexpected exception raised:"
+                    exctype, value = sys.exc_info()[:2]
+                    print exctype
+                    print value
+                    raise
+
+#                    print "Unknown exception"
+#                    sys.exit(1)
 
                 sim_cfg.genAutoTest(options.dry_run, True)
                 sim_cfg['defines'] += " " + defines
@@ -167,7 +176,6 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
                 if(not options.compile_only):
                     try:
                         sim.run(store_stdio=options.tabulate)
-#                        score_board.scoreTestFromCfg(sim_cfg)
                     except SimRun.ProcessFail, info:
                         print "The process exited with an error"
                 else:
@@ -180,10 +188,17 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
                     print sim.cfg.build_path
                     print sim.cfg.tasks
         except KeyboardInterrupt:
-                print "KeyboardInterrupt Caught... terminating simulation"
+            print "KeyboardInterrupt Caught... terminating simulation"
+        except SystemExit:
+            pass
         finally:
+            print ""
+            print "========================="
+            print " Collecting Test Results "
+            print "========================="
             for cfg in cfg_list:
                 score_board.scoreTestFromCfg(cfg)
-                score_board.printReport()
+            score_board.printASCIIReport()
+            os._exit(1)
     else:
         parser.print_help()

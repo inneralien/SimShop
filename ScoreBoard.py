@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-import sys
+import sys, os
 import re
 
 """
@@ -92,15 +92,10 @@ class ScoreBoard():
     def scoreTestFromCfg(self, sim_cfg):
         variant = sim_cfg.variant
         test = sim_cfg.test
-        logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
-        print "==============================================================================="
-        print " Scoring Simulation %s/%s" % (variant, test)
-        print " %s" % logfile
-        print "==============================================================================="
         if(variant in self.variant_list):
-            print "FOUND %s" % variant
+            pass
+#            print "FOUND %s" % variant
         else:
-            print "Adding new variant: %s" % variant
             self.variant_list.append(variant)
             self.scores[variant] = Score(name=variant)
 
@@ -109,7 +104,6 @@ class ScoreBoard():
 
         # A log file contains 1 variant, 1 test and 0 or more tasks
         task_scores = self.searchFile(sim_cfg, test_score)
-#        print task_scores
 
     def searchFile(self, sim_cfg, test_score):
         """
@@ -125,12 +119,20 @@ class ScoreBoard():
         @type   test_score: Score
         @param  test_score: A Score object
         """
+        logfile = ''
         score = test_score
-        logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
+        try:
+            logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
+        except:
+            print "The logfile does not exist"
+            score.incIncomplete()
+#            sys.exit(1)
         got_test_begin = False
         task_list = []
 
-        print "Scanning for errors and warnings"
+        if(not os.path.exists(logfile)):
+            print "The logfile to be scored does not exist: %s" % logfile
+            return
         f = open(logfile, 'r')
         for i in f.readlines():
                 # Search for know Task names
@@ -161,7 +163,7 @@ class ScoreBoard():
             if(self.testBeginRegex is not None):
                 s = self.testBeginRegex.search(i)
                 if(s is not None):
-                    print "Found TEST_BEGIN"
+#                    print "Found TEST_BEGIN"
                     if(got_test_begin is True):
                         score.incIncomplete()
                     else:
@@ -171,7 +173,7 @@ class ScoreBoard():
             if(self.testEndRegex is not None):
                 s = self.testEndRegex.search(i)
                 if(s is not None):
-                    print "Found TEST_END"
+#                    print "Found TEST_END"
                     if(got_test_begin is False):
                         score.incIncomplete()
                     else:
@@ -187,6 +189,88 @@ class ScoreBoard():
         Print an ascii report to stdout.
         """
         print "++ Printing Report ++"
+        for v in self.variant_list:
+            print self.scores[v].name, self.scores[v].error_count
+            for test in self.scores[v].children:
+                print "  ", test.name, test.error_count, test.incomplete_count
+                for task in test.children:
+                    print "    ", task.name, task.error_count, task.incomplete_count
+
+    def printASCIIReport(self):
+        """
+        Prints a pretty ASCII table representation of the simulation
+        results.
+        """
+            # Determine the longest string name
+        longest = 0
+        for v in self.variant_list:
+            if(len(self.scores[v].name) > longest):
+                longest = len(self.scores[v].name)
+            for test in self.scores[v].children:
+                if(len(test.name) > longest):
+                    longest = len(test.name)
+                for task in test.children:
+                    if(len(task.name) > longest):
+                        longest = len(task.name)
+        longest = longest + 2
+
+            # Format and print the output
+        print ""
+#        print "Test Summary".ljust(longest+9) + "Err".rjust(5) + "Warn".rjust(6) + "Inc".rjust(4)
+        print "Test Summary".ljust(longest+9) +\
+              "Errors".rjust(6) +\
+              "Incomplete".rjust(11)
+        print "==============================================================================="
+        for v in self.variant_list:
+            passed = "FAIL"
+
+            if(self.scores[v].error_count == 0 and self.scores[v].incomplete_count == 0):
+                passed = "PASS"
+            print "%s%s%s%s" %  ( self.scores[v].name.ljust(longest+4),
+                                  passed,
+                                  str(self.scores[v].error_count).rjust(5),
+#                                  str(self.scores[v].warning_count).rjust(5),
+                                  str(self.scores[v].incomplete_count).rjust(5)
+                              )
+            for test in self.scores[v].children:
+                if(test.error_count == 0 and test.incomplete_count == 0):
+                    passed = "PASS"
+                else:
+                    passed = "FAIL"
+                print "  %s%s%s%s" % (test.name.ljust(longest+2),
+                                      passed,
+                                      str(test.error_count).rjust(5),
+#                                      str(test.warning_count).rjust(5),
+                                      str(test.incomplete_count).rjust(5)
+                                     )
+                for task in test.children:
+                    if(task.error_count == 0 and task.incomplete_count == 0):
+                        passed = "PASS"
+                    else:
+                        passed = "FAIL"
+                    print "    %s%s%s%s" % ( task.name.ljust(longest),
+                                             passed,
+                                             str(task.error_count).rjust(5),
+#                                             str(task.warning_count).rjust(5),
+                                             str(task.incomplete_count).rjust(5)
+                                            )
+
+    def printHTMLReport(self):
+        """
+        Prints an HTML table representation of the simulation result.
+        """
+        print "<table>"
+        print "<tr>"
+        print "<td>Variant</td>"
+        print "<td>Test</td>"
+        print "<td>Task</td>"
+        print "<td>ERRORS</td>"
+        print "<td>WARNINGS</td>"
+        print "<td>INCOMPLETES</td>"
+
+        print "</tr>"
+        print "</table>"
+
         for v in self.variant_list:
             print self.scores[v].name, self.scores[v].error_count
             for test in self.scores[v].children:
@@ -210,27 +294,27 @@ class Score(list):
         self.current_child = None
 
     def add(self, name):
-        print "adding %s to %s" % (name, self.name)
+#        print "adding %s to %s" % (name, self.name)
         self.append(name)
         child = Score(name=name, parent=self)
         self.children.append(child)
         return child
 
     def incError(self):
-        print "Incrementing error in %s" % (self.name)
+#        print "Incrementing error in %s" % (self.name)
         len_children = len(self.children)
         if(self.parent is not None):
             self.parent.incError()
         self.error_count += 1
 
     def incWarning(self):
-        print "Incrementing warning in %s" % (self.name)
+#        print "Incrementing warning in %s" % (self.name)
         if(self.parent is not None):
             self.parent.incWarning()
         self.warning_count += 1
 
     def incIncomplete(self):
-        print "Incrementing incomplete error in %s" % (self.name)
+#        print "Incrementing incomplete error in %s" % (self.name)
         if(self.parent is not None):
             self.parent.incIncomplete()
         self.incomplete_count += 1
