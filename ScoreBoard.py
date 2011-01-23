@@ -126,7 +126,6 @@ class ScoreBoard():
         except:
             print "The logfile does not exist"
             score.incIncomplete()
-#            sys.exit(1)
         got_test_begin = False
         task_list = []
 
@@ -163,7 +162,6 @@ class ScoreBoard():
             if(self.testBeginRegex is not None):
                 s = self.testBeginRegex.search(i)
                 if(s is not None):
-#                    print "Found TEST_BEGIN"
                     if(got_test_begin is True):
                         score.incIncomplete()
                     else:
@@ -173,7 +171,6 @@ class ScoreBoard():
             if(self.testEndRegex is not None):
                 s = self.testEndRegex.search(i)
                 if(s is not None):
-#                    print "Found TEST_END"
                     if(got_test_begin is False):
                         score.incIncomplete()
                     else:
@@ -216,7 +213,6 @@ class ScoreBoard():
 
             # Format and print the output
         print ""
-#        print "Test Summary".ljust(longest+9) + "Err".rjust(5) + "Warn".rjust(6) + "Inc".rjust(4)
         print "Test Summary".ljust(longest+9) +\
               "Errors".rjust(6) +\
               "Incomplete".rjust(11)

@@ -7,14 +7,12 @@ class VerilogSim():
     def __init__(self, cfg):
         self.cfg = cfg
         self.flags = {}
-#        self.flags['build_dir']     = CmdArgs(value=['./run'])
         self.flags['proj_root']     = CmdArgs(value=['./'])
         self.flags['defines']       = CmdArgs(cmd=lambda x: self._prepend('-D', x))
         self.flags['rtl_inc_dirs']  = CmdArgs(cmd=lambda x: self._prependWithPath('-I', x))
         self.flags['test_inc_dirs'] = CmdArgs(cmd=lambda x: self._prependWithPath('-I', x))
         self.flags['rtl_files']     = CmdArgs(cmd=lambda x: self._prependWithPath('', x))
         self.flags['test_files']    = CmdArgs(cmd=lambda x: self._prependWithPath('', x))
-#        self.flags['plusargs']      = CmdArgs(value="")
         self.flags['plusargs']      = CmdArgs(cmd=lambda x: self._prepend('+', x))
 
         self.rel_proj_root = None
@@ -61,12 +59,12 @@ class VerilogSim():
         s = SimRun(self.build_cmds)
         s.run
 
-    def run(self, index=None, store_stdio=False):
+    def run(self, index=None):
         if(index is not None):
             s = SimRun([self.cmds[index]])
         else:
             s = SimRun(self.cmds)
-        s.run(store_stdio=store_stdio)
+        s.run()
 
     def buildCmd(self):
         print "VerilogSim: Overload this method to create a custom command"

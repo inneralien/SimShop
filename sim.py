@@ -28,22 +28,12 @@ if __name__ == '__main__':
   Copyright (C) 2010-2011
   %s
 """ % __version__
-    usage = \
-"""\
-usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
-           [-p <plusarg>] [--clean] [<path_to/variant/testname>]"""
-#    print copyright_text
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
-#    parser = OptionParser(usage=usage,
         version="%s" % (__version__))
     parser.add_option("-l", "--list-tests",
                         action="store_true",
                         dest="list_tests",
                         help="list all available tests")
-    parser.add_option("-t", "--tabulate",
-                        action="store_true",
-                        dest="tabulate",
-                        help="tabulate errors and warnings from the simulations")
     parser.add_option("-n", "--dry-run",
                         action="store_true",
                         dest="dry_run",
@@ -155,14 +145,9 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
                     print value
                     raise
 
-#                    print "Unknown exception"
-#                    sys.exit(1)
-
                 sim_cfg.genAutoTest(options.dry_run, True)
                 sim_cfg['defines'] += " " + defines
                 sim_cfg['plusargs'] += " " + plusargs
-#            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.variant
-#            sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim_' + sim_cfg.test
                 sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
 
                 sim = IcarusVerilog(sim_cfg)
@@ -175,7 +160,7 @@ usage: sim [--version] [-l] [-t] [-n] [-c] [-d] [-D <define>]
                     sys.exit(0)
                 if(not options.compile_only):
                     try:
-                        sim.run(store_stdio=options.tabulate)
+                        sim.run()
                     except SimRun.ProcessFail, info:
                         print "The process exited with an error"
                 else:
