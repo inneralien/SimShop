@@ -17,17 +17,10 @@ import SimCfg
 import TestFind
 
 __author__ = "Tim Weaver - RTLCores"
-__version__ = "v0.6.2 alpha"
+__version__ = "v0.7 Beta"
 
 
 if __name__ == '__main__':
-    copyright_text = \
-"""\
-
-  RTLCores Simulation Script
-  Copyright (C) 2010-2011
-  %s
-""" % __version__
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
         version="%s" % (__version__))
     parser.add_option("-l", "--list-tests",
