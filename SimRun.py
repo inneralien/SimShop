@@ -22,17 +22,27 @@ class SimRun():
                 if(run_process.returncode):
                     raise ProcessFail
             except OSError, (instance):
-                break
-            finally:
-                if(stdout is not None):
-                    print "PRINTING STDOUT"
-                    print stdout
-                if(stderr is not None):
-                    print stderr
+#                print dir(instance)
+#                print instance.child_traceback
+#                print "strerror", instance.strerror
+#                print "args", instance.args
+#                print "errno", instance.errno
+#                print "filename", instance.filename
+#                print "IN EXCEPT"
+                raise ProcessFail(instance.strerror)
+#                break
+#            finally:
+##                print "IN FINALLY"
+#                if(stdout is not None):
+#                    print "PRINTING STDOUT"
+#                    print stdout
+#                if(stderr is not None):
+#                    print stderr
 
 class ProcessFail(Exception):
-    def __init__(self):
-        print "In ProcessFail Exception"
+    def __init__(self, message):
+        self.message = message
+#        print "In ProcessFail Exception"
 
 if __name__ == '__main__':
     s = SimRun(['pwd'])

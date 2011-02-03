@@ -10,6 +10,7 @@ import re
 import string
 import distutils.dir_util
 
+import Exceptions
 from builders.IcarusVerilog import IcarusVerilog
 import ScoreBoard
 import SimRun
@@ -114,6 +115,35 @@ if __name__ == '__main__':
                     sim_cfg = SimCfg.SimCfg()
                     cfg_list.append(sim_cfg)
                     sim_cfg.verifyTarget(target)
+                    sim_cfg.genAutoTest(options.dry_run, True)
+                    sim_cfg['defines'] += " " + defines
+                    sim_cfg['plusargs'] += " " + plusargs
+                    sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
+
+                    sim = IcarusVerilog(sim_cfg)
+
+                    sim.buildCompCmd()
+                    sim.buildSimCmd()
+                    if(options.dry_run):
+                        for cmd in sim.cmds:
+                            print " ".join(cmd)
+                        break
+#                        sys.exit(0)
+                    if(not options.compile_only):
+                        try:
+                            sim.run()
+                        except SimRun.ProcessFail, info:
+#                        print "The process exited with an error"
+                            print "ERROR: %s" % info.message
+                    else:
+                        print "--Compile only--"
+                        sim.run(0)
+                        print sim.cfg['logfile']
+                        print sim.cfg.variant
+                        print sim.cfg.test
+                        print sim.cfg.path
+                        print sim.cfg.build_path
+                        print sim.cfg.tasks
                 except SimCfg.MultipleConfigFiles, info:
                     print "==== Error ===="
                     print "Either there are multiple .cfg files in the current directory"
@@ -126,7 +156,7 @@ if __name__ == '__main__':
                     sys.exit(1)
                 except SimCfg.InvalidTest, info:
                     print "The test '%s' does not exist. Check your spelling." % info.data
-                    sys.exit(1)
+#                    break
                 except SimCfg.InvalidPath, info:
                     print "The path '%s' does not exist." % info.data
                     sys.exit(1)
@@ -138,44 +168,27 @@ if __name__ == '__main__':
                     print value
                     raise
 
-                sim_cfg.genAutoTest(options.dry_run, True)
-                sim_cfg['defines'] += " " + defines
-                sim_cfg['plusargs'] += " " + plusargs
-                sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
-
-                sim = IcarusVerilog(sim_cfg)
-
-                sim.buildCompCmd()
-                sim.buildSimCmd()
-                if(options.dry_run):
-                    for cmd in sim.cmds:
-                        print " ".join(cmd)
-                    sys.exit(0)
-                if(not options.compile_only):
-                    try:
-                        sim.run()
-                    except SimRun.ProcessFail, info:
-                        print "The process exited with an error"
-                else:
-                    print "--Compile only--"
-                    sim.run(0)
-                    print sim.cfg['logfile']
-                    print sim.cfg.variant
-                    print sim.cfg.test
-                    print sim.cfg.path
-                    print sim.cfg.build_path
-                    print sim.cfg.tasks
         except KeyboardInterrupt:
             print "KeyboardInterrupt Caught... terminating simulation"
         except SystemExit:
             pass
+        except Exception:
+            print "** Error **"
+            print "Unexpected exception raised:"
+            exctype, value = sys.exc_info()[:2]
+            print exctype
+            print value
         finally:
             print ""
             print "========================="
             print " Collecting Test Results "
             print "========================="
             for cfg in cfg_list:
-                score_board.scoreTestFromCfg(cfg)
+                try:
+                    score_board.scoreTestFromCfg(cfg)
+                except Exceptions.LogFileDoesNotExistError, info:
+                    print info.error_message
+#                    sys.exit(1)
             score_board.printASCIIReport()
             os._exit(1)
     else:

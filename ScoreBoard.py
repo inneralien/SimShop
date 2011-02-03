@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import sys, os
 import re
+import Exceptions
 
 """
 Takes a list of variants and tests and generates a scoreboard based off
@@ -124,14 +125,17 @@ class ScoreBoard():
         try:
             logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
         except:
-            print "The logfile does not exist"
             score.incIncomplete()
         got_test_begin = False
         task_list = []
 
         if(not os.path.exists(logfile)):
-            print "The logfile to be scored does not exist: %s" % logfile
-            return
+#            print "The logfile to be scored does not exist: %s" % logfile
+#            score.incIncomplete()
+            raise Exceptions.LogFileDoesNotExistError('searchFile',
+                'The logfile to be score does not exist: %s' % logfile,
+                'A long message')
+#            return
         f = open(logfile, 'r')
         for i in f.readlines():
                 # Search for know Task names

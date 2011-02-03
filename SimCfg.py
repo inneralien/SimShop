@@ -96,9 +96,11 @@ class SimCfg(SafeConfigParser):
         (n, self.variant) = os.path.split(self.path)
         if(self.variant == ""):
             (n, self.variant) = os.path.split(os.getcwd())
-        print "PATH:", self.path
-        print "VARIANT:", self.variant
-        print "TEST:", self.test
+        print ""
+        print "== Verifying target... =="
+        print "  PATH".ljust(9), ":", self.path
+        print "  VARIANT".ljust(9), ":", self.variant
+        print "  TEST".ljust(9), ":", self.test
         print ""
         if(os.path.exists(self.path)):
             self.readCfg(self.path)
