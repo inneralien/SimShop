@@ -13,7 +13,7 @@ import distutils.dir_util
 import Exceptions
 from builders.IcarusVerilog import IcarusVerilog
 import ScoreBoard
-import SimRun
+import CmdRun
 import SimCfg
 import TestFind
 
@@ -132,18 +132,18 @@ if __name__ == '__main__':
                     if(not options.compile_only):
                         try:
                             sim.run()
-                        except SimRun.ProcessFail, info:
+                        except CmdRun.ProcessFail, info:
 #                        print "The process exited with an error"
                             print "ERROR: %s" % info.message
                     else:
                         print "--Compile only--"
                         sim.run(0)
-                        print sim.cfg['logfile']
-                        print sim.cfg.variant
-                        print sim.cfg.test
-                        print sim.cfg.path
-                        print sim.cfg.build_path
-                        print sim.cfg.tasks
+#                        print sim.cfg['logfile']
+#                        print sim.cfg.variant
+#                        print sim.cfg.test
+#                        print sim.cfg.path
+#                        print sim.cfg.build_path
+#                        print sim.cfg.tasks
                 except SimCfg.MultipleConfigFiles, info:
                     print "==== Error ===="
                     print "Either there are multiple .cfg files in the current directory"
@@ -179,17 +179,20 @@ if __name__ == '__main__':
             print exctype
             print value
         finally:
-            print ""
-            print "========================="
-            print " Collecting Test Results "
-            print "========================="
-            for cfg in cfg_list:
-                try:
-                    score_board.scoreTestFromCfg(cfg)
-                except Exceptions.LogFileDoesNotExistError, info:
-                    print info.error_message
+            if(options.compile_only or options.dry_run):
+                pass
+            else:
+                print ""
+                print "========================="
+                print " Collecting Test Results "
+                print "========================="
+                for cfg in cfg_list:
+                    try:
+                        score_board.scoreTestFromCfg(cfg)
+                    except Exceptions.LogFileDoesNotExistError, info:
+                        print info.error_message
 #                    sys.exit(1)
-            score_board.printASCIIReport()
+                score_board.printASCIIReport()
             os._exit(1)
     else:
         parser.print_help()

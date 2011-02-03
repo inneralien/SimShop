@@ -1,7 +1,7 @@
 import os
 import sys
 from CmdArgs import CmdArgs
-from SimRun import SimRun
+from CmdRun import CmdRun
 
 class VerilogSim():
     def __init__(self, cfg):
@@ -56,14 +56,14 @@ class VerilogSim():
         self.rel_proj_root = os.path.normpath(self.cfg.path + "/" + proj_root)
 
     def build(self):
-        s = SimRun(self.build_cmds)
+        s = CmdRun(self.build_cmds)
         s.run
 
     def run(self, index=None):
         if(index is not None):
-            s = SimRun([self.cmds[index]])
+            s = CmdRun([self.cmds[index]])
         else:
-            s = SimRun(self.cmds)
+            s = CmdRun(self.cmds)
         s.run()
 
     def buildCmd(self):

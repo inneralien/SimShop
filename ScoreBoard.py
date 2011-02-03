@@ -133,7 +133,7 @@ class ScoreBoard():
 #            print "The logfile to be scored does not exist: %s" % logfile
 #            score.incIncomplete()
             raise Exceptions.LogFileDoesNotExistError('searchFile',
-                'The logfile to be score does not exist: %s' % logfile,
+                'The file to be score does not exist: %s' % logfile,
                 'A long message')
 #            return
         f = open(logfile, 'r')

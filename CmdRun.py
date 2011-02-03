@@ -3,7 +3,7 @@
 
 import subprocess
 
-class SimRun():
+class CmdRun():
     def __init__(self, cmds=[]):
         self.cmds = cmds
         self.show_cmds = True
@@ -45,7 +45,7 @@ class ProcessFail(Exception):
 #        print "In ProcessFail Exception"
 
 if __name__ == '__main__':
-    s = SimRun(['pwd'])
+    s = CmdRun(['pwd'])
     s.run()
     cmds = []
     cmds.append([['pwd'], ['ls', '-ltrp'], ['pwd'], ['nocmd']])
