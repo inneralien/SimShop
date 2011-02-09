@@ -55,9 +55,9 @@ class VerilogSim():
         proj_root = ' '.join("%s" % x for x in self['proj_root'])
         self.rel_proj_root = os.path.normpath(self.cfg.path + "/" + proj_root)
 
-    def build(self):
-        s = CmdRun(self.build_cmds)
-        s.run
+#    def build(self):
+#        s = CmdRun(self.build_cmds)
+#        s.run
 
     def run(self, index=None):
         if(index is not None):
