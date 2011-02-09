@@ -40,6 +40,10 @@ if __name__ == '__main__':
                         action='store_true',
                         dest="dumpon",
                         help="enable dumping of waveform. This is the same as -DDUMPON")
+    parser.add_option("-v", "--verbose",
+                        action='store_true',
+                        dest="verbose",
+                        help="display verbose error messages")
 #    parser.add_option("-m", "--match",
 #                        action='append',
 #                        dest="match",
@@ -119,6 +123,8 @@ if __name__ == '__main__':
                     sim_cfg['defines'] += " " + defines
                     sim_cfg['plusargs'] += " " + plusargs
                     sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
+#                    for i in sim_cfg:
+#                        print "%r" % i
 
                     sim = IcarusVerilog(sim_cfg)
 
@@ -183,14 +189,19 @@ if __name__ == '__main__':
                 pass
             else:
                 print ""
-                print "========================="
-                print " Collecting Test Results "
-                print "========================="
+#                print "========================="
+#                print "+-------------------------+"
+#                print "| Collecting Test Results |"
+#                print "+-------------------------+"
                 for cfg in cfg_list:
                     try:
                         score_board.scoreTestFromCfg(cfg)
                     except Exceptions.LogFileDoesNotExistError, info:
                         print info.error_message
+                        if(options.verbose):
+                            print info.long_message
+                        else:
+                            print "(use -v option to print verbose error messages)"
 #                    sys.exit(1)
                 score_board.printASCIIReport()
             os._exit(1)

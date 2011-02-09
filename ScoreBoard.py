@@ -3,6 +3,7 @@
 import sys, os
 import re
 import Exceptions
+import help
 
 """
 Takes a list of variants and tests and generates a scoreboard based off
@@ -134,7 +135,7 @@ class ScoreBoard():
 #            score.incIncomplete()
             raise Exceptions.LogFileDoesNotExistError('searchFile',
                 'The file to be score does not exist: %s' % logfile,
-                'A long message')
+                help.missing_logfile_help)
 #            return
         f = open(logfile, 'r')
         for i in f.readlines():
@@ -220,7 +221,7 @@ class ScoreBoard():
         print "Test Summary".ljust(longest+9) +\
               "Errors".rjust(6) +\
               "Incomplete".rjust(11)
-        print "==============================================================================="
+        print "+-----------------------------------------------------------------------------+"
         for v in self.variant_list:
             passed = "FAIL"
 
