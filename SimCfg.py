@@ -37,7 +37,7 @@ class SimCfg(SafeConfigParser):
             value = self.get(self.test, item)
             return value
         except NoOptionError, (instance):
-            print "LOG - missing config option: '%s'" % item
+#            print "LOG - missing config option: '%s'" % item
 #            return list()
             return ''
 
