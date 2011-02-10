@@ -93,7 +93,7 @@ class ScoreBoard():
 
     def scoreTestFromCfg(self, sim_cfg):
         variant = sim_cfg.variant
-        test = sim_cfg.test
+        test = sim_cfg.test_section
         if(variant in self.variant_list):
             pass
 #            print "FOUND %s" % variant

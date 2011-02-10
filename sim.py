@@ -7,13 +7,12 @@
 import sys,os
 from optparse import OptionParser
 import re
-import string
-import distutils.dir_util
+import traceback
 
 import Exceptions
 from builders.IcarusVerilog import IcarusVerilog
 import ScoreBoard
-import CmdRun
+from builders.CmdRun import ProcessFail
 import SimCfg
 import TestFind
 
@@ -138,7 +137,7 @@ if __name__ == '__main__':
                     if(not options.compile_only):
                         try:
                             sim.run()
-                        except CmdRun.ProcessFail, info:
+                        except ProcessFail, info:
 #                        print "The process exited with an error"
                             print "ERROR: %s" % info.message
                     else:
@@ -159,19 +158,13 @@ if __name__ == '__main__':
                     print "I found the following config files:"
                     for i in info.data:
                         print "  %s" % i
-                    sys.exit(1)
+#                    sys.exit(1)
                 except SimCfg.InvalidTest, info:
                     print "The test '%s' does not exist. Check your spelling." % info.data
-#                    break
                 except SimCfg.InvalidPath, info:
                     print "The path '%s' does not exist." % info.data
-                    sys.exit(1)
+#                    sys.exit(1)
                 except Exception:
-                    print "** Error **"
-                    print "Unexpected exception raised:"
-                    exctype, value = sys.exc_info()[:2]
-                    print exctype
-                    print value
                     raise
 
         except KeyboardInterrupt:
@@ -179,20 +172,18 @@ if __name__ == '__main__':
         except SystemExit:
             pass
         except Exception:
-            print "** Error **"
-            print "Unexpected exception raised:"
-            exctype, value = sys.exc_info()[:2]
-            print exctype
-            print value
+            tb = sys.exc_info()[2]
+            stack = []
+            while tb:
+                stack.append(tb.tb_frame)
+                tb = tb.tb_next
+#TODO - Add a logger and push this traceback to a file
+            traceback.print_exc()
         finally:
             if(options.compile_only or options.dry_run):
                 pass
             else:
                 print ""
-#                print "========================="
-#                print "+-------------------------+"
-#                print "| Collecting Test Results |"
-#                print "+-------------------------+"
                 for cfg in cfg_list:
                     try:
                         score_board.scoreTestFromCfg(cfg)
@@ -202,7 +193,6 @@ if __name__ == '__main__':
                             print info.long_message
                         else:
                             print "(use -v option to print verbose error messages)"
-#                    sys.exit(1)
                 score_board.printASCIIReport()
             os._exit(1)
     else:

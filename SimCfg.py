@@ -19,9 +19,10 @@ class SimCfg(SafeConfigParser):
         self.cfg_files = []
         self.target = None
         self.path = None
-        self.test = None
+        self.test_section = 'DEFAULT'
         self.rel_proj_root = None
         self.tasks = []
+            # These are the default SimCfg items
         self['timescale'] = '1ns / 10ps'
         self['timeout'] = '40000000'
         self['builddir'] = 'simbuild'
@@ -29,20 +30,21 @@ class SimCfg(SafeConfigParser):
         self['dumpfile'] = 'out.vcd'
         self['dumpvars'] = '(0,tb)'
         self['logfile'] = 'sim.log'
-#        self['plusargs'] = ''
-#        self['defines'] = ''
+        self['plusargs'] = ''
+        self['defines'] = ''
 
     def __getitem__(self, item):
         try:
-            value = self.get(self.test, item)
+            value = self.get(self.test_section, item)
             return value
         except NoOptionError, (instance):
-#            print "LOG - missing config option: '%s'" % item
+            print "LOG - missing config option: '%s'" % item
 #            return list()
             return ''
 
     def __setitem__(self, key, value):
-        return self.set(self.test, key, value)
+        print "%s -> %s" % (key, value)
+        return self.set(self.test_section, key, value)
 
     def readCfg(self, path=None):
         """
@@ -90,7 +92,7 @@ class SimCfg(SafeConfigParser):
                 - variant = variant
                 - test = test_*
         """
-        (self.path, self.test) = os.path.split(target)
+        (self.path, self.test_section) = os.path.split(target)
         if(self.path == ""):
             self.path = "./"
         (n, self.variant) = os.path.split(self.path)
@@ -100,20 +102,20 @@ class SimCfg(SafeConfigParser):
         print "== Verifying target... =="
         print "  PATH".ljust(9), ":", self.path
         print "  VARIANT".ljust(9), ":", self.variant
-        print "  TEST".ljust(9), ":", self.test
+        print "  TEST".ljust(9), ":", self.test_section
         print ""
         if(os.path.exists(self.path)):
             self.readCfg(self.path)
-            if(self.has_section(self.test)):
-                print "Generating test file based on test '%s'" % self.test
-                self.tasks = self.get(self.test, 'TASKS').split()
+            if(self.has_section(self.test_section)):
+                print "Generating test file based on test '%s'" % self.test_section
+                self.tasks = self.get(self.test_section, 'TASKS').split()
                 self.task_list = list(self.tasks)
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
             else:
-                raise InvalidTest(self.test)
+                raise InvalidTest(self.test_section)
         else:
-            raise InvalidPath(self.test)
+            raise InvalidPath(self.test_section)
 
     def verifyTarget_old(self, target):
         """
@@ -128,27 +130,27 @@ class SimCfg(SafeConfigParser):
             raise NoTestSpecified(self.target)
 
         try:
-            (self.path, self.test) = os.path.split(target)
+            (self.path, self.test_section) = os.path.split(target)
             (n, self.variant) = os.path.split(self.path)
             print "PATH:", self.path
-            print "TEST:", self.test
+            print "TEST:", self.test_section
             print "VARIANT:", self.variant
         except:
             self.path = target
-            self.test = ''
+            self.test_section = ''
         finally:
             print "in Finally"
 
         if(os.path.exists(self.path)):
             self.readCfg(self.path)
-            if(self.has_section(self.test)):
-                print "Generating test file based on test '%s'" % self.test
-                self.tasks = self.get(self.test, 'TASKS').split()
+            if(self.has_section(self.test_section)):
+                print "Generating test file based on test '%s'" % self.test_section
+                self.tasks = self.get(self.test_section, 'TASKS').split()
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
                 print self.tasks
             else:
-                raise InvalidTest(self.test)
+                raise InvalidTest(self.test_section)
         else:
             self.path = "./"
             print "INVALID PATH"
@@ -168,13 +170,13 @@ class SimCfg(SafeConfigParser):
                                 '/' + \
                                 self.variant + \
                                 '/' + \
-                                self.test
+                                self.test_section
         else:
             build_path =   self.path + \
                                 '/' + \
                                 self['BUILDDIR'] + \
                                 '/' + \
-                                self.test
+                                self.test_section
 
         ## Dumpvars
         dumpvars = ""
@@ -222,3 +224,19 @@ class InvalidTest(SimCfgError):
 class InvalidPath(SimCfgError):
     def __init__(self, test):
         self.data = test
+
+if __name__ == '__main__':
+    s = SimCfg()
+#    print s.defaults()
+#    print dir(s)
+    s.readCfg('./test/')
+#    s.test = 'DEFAULT'
+#    s.verifyTarget('scratch/BOB')
+    print 'test', s.test_section
+    print s['timescale']
+    print s['builddir']
+    print dir(s)
+#    print dir(s)
+#    print s.defaults()
+#    print s.get('DEFAULT', 'dumpfile')
+#    self.tasks = self.get(self.test, 'TASKS').split()

@@ -1,5 +1,4 @@
 import os
-import sys
 from CmdArgs import CmdArgs
 from CmdRun import CmdRun
 
@@ -19,13 +18,17 @@ class VerilogSim():
 
         self.cmds = []
 
-    def __getitem__(self, item):
-        return self.flags[item]
+    def __getitem__(self, key):
+        if(key in self.flags):
+            return self.flags[key]
+        else:
+            raise KeyError(key)
 
     def __setitem__(self, key, value):
         if(key not in self.flags):
             self.flags[key] = CmdArgs(value = value)
         else:
+                # Clear the entire list before adding values to it
             del self.flags[key][:]
             self.flags[key].extend(value)
 
@@ -47,17 +50,13 @@ class VerilogSim():
         This is where the config file items get converted into
         CmdArgs.
         """
-        for name,value in self.cfg.items(self.cfg.test):
+        for name,value in self.cfg.items(self.cfg.test_section):
             self[name] = value.split()
         self.setRelativeRoot()
 
     def setRelativeRoot(self):
         proj_root = ' '.join("%s" % x for x in self['proj_root'])
         self.rel_proj_root = os.path.normpath(self.cfg.path + "/" + proj_root)
-
-#    def build(self):
-#        s = CmdRun(self.build_cmds)
-#        s.run
 
     def run(self, index=None):
         if(index is not None):
