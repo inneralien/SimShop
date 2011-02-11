@@ -121,9 +121,6 @@ if __name__ == '__main__':
                     sim_cfg.genAutoTest(options.dry_run, True)
                     sim_cfg['defines'] += " " + defines
                     sim_cfg['plusargs'] += " " + plusargs
-                    sim_cfg['outfile'] = sim_cfg.build_path + '/' + 'sim'
-#                    for i in sim_cfg:
-#                        print "%r" % i
 
                     sim = IcarusVerilog(sim_cfg)
 

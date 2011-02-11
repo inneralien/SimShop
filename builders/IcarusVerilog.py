@@ -22,11 +22,12 @@ class IcarusVerilog(VerilogSim):
 
         ## Default flags specific to Icarus Verilog
         ## and any required list comprehension commands
-        self['compcmd'] = ['iverilog'] # -n = non-interactive mode
+        self['compcmd'] = ['iverilog']
+        self['simcmd'] = ['vvp'] # -n = non-interactive mode
         self['builddir'] = ['run']
         self['warn'] = ['all']
         self['warn'].cmd = lambda x: self._prepend('-W', x)
-        self['outfile'] = []
+        self['outfile'] = [self.cfg.outfile]
         self['outfile'].cmd = lambda x: self._prepend('-o', x)
 
         ## Run the populate method to do the cfg conversion
@@ -43,10 +44,15 @@ class IcarusVerilog(VerilogSim):
                         self['test_inc_dirs'].conv() + \
                         self['rtl_files'].conv() + \
                         self['test_files'].conv() + \
-                        [self.cfg['auto_test']]
+                        [self.cfg.auto_test]
+#                        [self.cfg['auto_test']]
         self.cmds.append(self.comp_cmd)
 
     def buildSimCmd(self):
         log = '-l' + self.cfg.build_path + '/' + self.cfg['logfile']
-        self.sim_cmd = ['vvp'] + ['-n'] + [log] + self['outfile'] + self['plusargs'].conv()
+        self.sim_cmd =  self['simcmd'] + \
+                        ['-n'] + \
+                        [log] + \
+                        self['outfile'] + \
+                        self['plusargs'].conv()
         self.cmds.append(self.sim_cmd)

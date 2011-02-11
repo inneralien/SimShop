@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import re, sys
+import re
 import os, os.path
 import string
 from ConfigParser import NoOptionError
@@ -15,43 +15,67 @@ class SimCfg(SafeConfigParser):
     including paths and config files.
     """
     def __init__(self):
-        SafeConfigParser.__init__(self)
+        self.defaults = {
+                'PROJ_ROOT':        './',
+                'TIMESCALE':        '1ns / 10ps',
+                'TIMEOUT':          '40000000',
+                'BUILDDIR':         'simbuild',
+                'AUTO_TEST_FILE':   'auto_test.v',
+                'DUMPFILE':         'out.vcd',
+                'DUMPVARS':         '(0,tb)',
+                'SIMFILE':          'sim',
+                'LOGFILE':          'sim.log',
+                'PLUSARGS':         '',
+                'DEFINES':          '',
+                'RTL_FILES':        '',
+                'TEST_FILES':       '',
+                'RTL_INC_DIRS':     '',
+                'TEST_INC_DIRS':    '',
+                'TASKS':            '',
+        }
+        self.post_read_defaults = []
+        self.invalid_default_items = []
+
+        SafeConfigParser.__init__(self, self.defaults)
         self.cfg_files = []
         self.target = None
         self.path = None
-        self.test_section = 'DEFAULT'
+        self.test_section = None
         self.rel_proj_root = None
         self.tasks = []
-            # These are the default SimCfg items
-        self['timescale'] = '1ns / 10ps'
-        self['timeout'] = '40000000'
-        self['builddir'] = 'simbuild'
-        self['auto_test_file'] = 'auto_test.v'
-        self['dumpfile'] = 'out.vcd'
-        self['dumpvars'] = '(0,tb)'
-        self['logfile'] = 'sim.log'
-        self['plusargs'] = ''
-        self['defines'] = ''
 
-    def __getitem__(self, item):
+    def __getitem__(self, key):
         try:
-            value = self.get(self.test_section, item)
+            value = self.get(self.test_section, key)
             return value
         except NoOptionError, (instance):
-            print "LOG - missing config option: '%s'" % item
+            print "LOG - missing config option: '%s'" % key
 #            return list()
             return ''
 
     def __setitem__(self, key, value):
-        print "%s -> %s" % (key, value)
-        return self.set(self.test_section, key, value)
+#        print dir(self)
+        if(not self.has_option(self.test_section, key)):
+            print "==== Missing option:", key
+        print "%s -> %s" % (key.upper(), value)
+#        return self.set(self.test_section, key, value)
+        self.set(self.test_section, key, value)
 
     def readCfg(self, path=None):
         """
         Given a path to a directory, search for a .cfg file and
         read it in.  If more than one is found raise an exception.
+
+        Some checking goes on here to make sure that only valid options
+        are declared in a config file.
+        Any options in the B{[DEFAULT]} section that are not initially
+        declared in the I{self.defaults} dictionary are invalid and removed
+        from the section. This is true of options in sections other than
+        B{[DEFAULT]} as well.
+
+        @type  path: string
+        @param path: A directory path
         """
-#        print path
         self.cfg_files = []
         cfg = re.compile(".*\.cfg$")
         if(path is None):
@@ -66,6 +90,24 @@ class SimCfg(SafeConfigParser):
             raise MultipleConfigFiles(self.cfg_files)
         else:
             self.read(self.cfg_files[0])
+
+            # DEFAULT Section Checks
+        for item in self.items('DEFAULT'):
+#            self.post_read_defaults.append(item[0])
+            if(item[0].upper() not in self.defaults):
+                print 'Unrecognized option "%s" in [DEFAULT] section of %s' % \
+                    (item[0].upper(), os.path.normpath(self.cfg_files[0]))
+                self.remove_option('DEFAULT', item[0])
+#                self.invalid_default_items.append(item[0])
+
+            # Test Section Checks
+        for test in self.sections():
+            for option in self.options(test):
+                if(option.upper() not in self.defaults):
+#                    if(option not in self.invalid_default_items):
+                    print 'Unrecognized option "%s" in [%s] section of %s' % \
+                        (option.upper(), test, os.path.normpath(self.cfg_files[0]))
+                    self.remove_option(test, option)
 
     def verifyTarget(self, target):
         """
@@ -107,7 +149,6 @@ class SimCfg(SafeConfigParser):
         if(os.path.exists(self.path)):
             self.readCfg(self.path)
             if(self.has_section(self.test_section)):
-                print "Generating test file based on test '%s'" % self.test_section
                 self.tasks = self.get(self.test_section, 'TASKS').split()
                 self.task_list = list(self.tasks)
                 self.tasks = [x+';' for x in self.tasks]
@@ -117,49 +158,14 @@ class SimCfg(SafeConfigParser):
         else:
             raise InvalidPath(self.test_section)
 
-    def verifyTarget_old(self, target):
-        """
-        Verify that the name of the target test passed on the command line
-        really does exist in the config files.
-        """
-        print "Verifying Target: %s" % target
-        self.target = target
-        if(not os.path.exists(self.target)):
-            pass
-        else:
-            raise NoTestSpecified(self.target)
-
-        try:
-            (self.path, self.test_section) = os.path.split(target)
-            (n, self.variant) = os.path.split(self.path)
-            print "PATH:", self.path
-            print "TEST:", self.test_section
-            print "VARIANT:", self.variant
-        except:
-            self.path = target
-            self.test_section = ''
-        finally:
-            print "in Finally"
-
-        if(os.path.exists(self.path)):
-            self.readCfg(self.path)
-            if(self.has_section(self.test_section)):
-                print "Generating test file based on test '%s'" % self.test_section
-                self.tasks = self.get(self.test_section, 'TASKS').split()
-                self.tasks = [x+';' for x in self.tasks]
-                self.tasks = "\n".join(str(x) for x in self.tasks)
-                print self.tasks
-            else:
-                raise InvalidTest(self.test_section)
-        else:
-            self.path = "./"
-            print "INVALID PATH"
-
     def genAutoTest(self, dry_run=False, use_variant_dir=False):
         """
         Generate an auto_test.v file from a template file and a
         replacements dictionary.
         """
+        print ""
+        print "Generating auto test file based on test '%s'" % self.test_section
+        print ""
         full_path = self.path + '/' + self['PROJ_ROOT']
         self.rel_proj_root = os.path.normpath(full_path)
 
@@ -188,18 +194,23 @@ class SimCfg(SafeConfigParser):
         # TODO Should probably put some error checking here
 
         self.build_path = os.path.normpath(build_path)
-        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
-        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
+        self.auto_test = self.build_path + '/' + self['AUTO_TEST_FILE']
+        self.dumpfile = self.build_path + '/' + self['DUMPFILE']
+        self.outfile = self.build_path + '/' + self['SIMFILE']
+#        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
+#        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
         if(dry_run is True):
             print "Build Path:", self.build_path
         else:
             distutils.dir_util.mkpath(self.build_path)
             s = string.Template(test_template)
-            f = open(self['auto_test'], 'w')
+#            f = open(self['auto_test'], 'w')
+            f = open(self.auto_test, 'w')
             f.write(s.safe_substitute( {'timescale': self['timescale'],
                                         'timeout': self['timeout'],
                                         'tasks': self.tasks,
-                                        'dumpfile': self['dumpfile'],
+                                        'dumpfile': self.dumpfile,
+#                                        'dumpfile': self['dumpfile'],
                                         'dumpvars': dumpvars
                                         })
             )
