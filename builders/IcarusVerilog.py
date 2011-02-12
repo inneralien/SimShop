@@ -22,8 +22,8 @@ class IcarusVerilog(VerilogSim):
 
         ## Default flags specific to Icarus Verilog
         ## and any required list comprehension commands
-        self['compcmd'] = ['iverilog']
-        self['simcmd'] = ['vvp'] # -n = non-interactive mode
+#        self['compcmd'] = ['iverilog']
+#        self['simcmd'] = ['vvp'] # -n = non-interactive mode
         self['builddir'] = ['run']
         self['warn'] = ['all']
         self['warn'].cmd = lambda x: self._prepend('-W', x)

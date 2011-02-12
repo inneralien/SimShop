@@ -92,14 +92,14 @@ if __name__ == '__main__':
     defines = ""
     plusargs = ""
     if(options.defines):
-        print "DEFINES:", options.defines
+#        print "DEFINES:", options.defines
         defines = " ".join("%s" % x for x in options.defines)
 
     if(options.dumpon):
         options.plusargs.append('DUMPON')
 
     if(options.plusargs):
-        print "PLUSARGS:", options.plusargs
+#        print "PLUSARGS:", options.plusargs
         plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):

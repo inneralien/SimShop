@@ -16,7 +16,6 @@ class SimCfg(SafeConfigParser):
     """
     def __init__(self):
         self.defaults = {
-                'PROJ_ROOT':        './',
                 'TIMESCALE':        '1ns / 10ps',
                 'TIMEOUT':          '40000000',
                 'BUILDDIR':         'simbuild',
@@ -25,13 +24,18 @@ class SimCfg(SafeConfigParser):
                 'DUMPVARS':         '(0,tb)',
                 'SIMFILE':          'sim',
                 'LOGFILE':          'sim.log',
-                'PLUSARGS':         '',
+                'PROJ_ROOT':        './',
                 'DEFINES':          '',
+                'PLUSARGS':         '',
                 'RTL_FILES':        '',
-                'TEST_FILES':       '',
                 'RTL_INC_DIRS':     '',
+                'TEST_FILES':       '',
                 'TEST_INC_DIRS':    '',
                 'TASKS':            '',
+                    # Simulator Specific Options
+                'COMPCMD':          'iverilog',
+                'SIMCMD':           'vvp',
+                'WARN':             'all',
         }
         self.post_read_defaults = []
         self.invalid_default_items = []
@@ -57,7 +61,7 @@ class SimCfg(SafeConfigParser):
 #        print dir(self)
         if(not self.has_option(self.test_section, key)):
             print "==== Missing option:", key
-        print "%s -> %s" % (key.upper(), value)
+#        print "%s -> %s" % (key.upper(), value)
 #        return self.set(self.test_section, key, value)
         self.set(self.test_section, key, value)
 
