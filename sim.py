@@ -43,12 +43,6 @@ if __name__ == '__main__':
                         action='store_true',
                         dest="verbose",
                         help="display verbose error messages")
-#    parser.add_option("-m", "--match",
-#                        action='append',
-#                        dest="match",
-#                        default=[],
-#                        metavar='NAME',
-#                        help="run all tests that match the NAME")
     parser.add_option("-D", "--defines",
                         action='append',
                         dest="defines",
