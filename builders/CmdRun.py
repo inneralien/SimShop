@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import subprocess
+import Exceptions
 
 class CmdRun():
     def __init__(self, cmds=[]):
@@ -20,7 +21,7 @@ class CmdRun():
                 )
                 (stdout, stderr) = run_process.communicate()
                 if(run_process.returncode):
-                    raise ProcessFail
+                    raise Exceptions.ProcessFail('run', 'The previous command failed', None)
             except OSError, (instance):
 #                print dir(instance)
 #                print instance.child_traceback
@@ -29,7 +30,7 @@ class CmdRun():
 #                print "errno", instance.errno
 #                print "filename", instance.filename
 #                print "IN EXCEPT"
-                raise ProcessFail(instance.strerror)
+                raise Exceptions.ProcessFail(instance.strerror)
 #                break
 #            finally:
 ##                print "IN FINALLY"
@@ -39,9 +40,9 @@ class CmdRun():
 #                if(stderr is not None):
 #                    print stderr
 
-class ProcessFail(Exception):
-    def __init__(self, message):
-        self.message = message
+#class ProcessFail(Exception):
+#    def __init__(self, message):
+#        self.message = message
 #        print "In ProcessFail Exception"
 
 if __name__ == '__main__':

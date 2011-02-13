@@ -11,8 +11,8 @@ import traceback
 
 import Exceptions
 from builders.IcarusVerilog import IcarusVerilog
+
 import ScoreBoard
-from builders.CmdRun import ProcessFail
 import SimCfg
 import TestFind
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
             else:
                 t.buildTestStruct()
                 t.listTests()
-        except TestFind.TestFindError, info:
+        except Exceptions.TestFindError, info:
             print info.error_message
         sys.exit(1)
 
@@ -135,8 +135,7 @@ if __name__ == '__main__':
                         try:
                             sim.run()
                         except ProcessFail, info:
-#                        print "The process exited with an error"
-                            print "ERROR: %s" % info.message
+                            print "ERROR: %s" % info.error_message
                     else:
                         print "--Compile only--"
                         sim.run(0)
@@ -146,20 +145,20 @@ if __name__ == '__main__':
 #                        print sim.cfg.path
 #                        print sim.cfg.build_path
 #                        print sim.cfg.tasks
-                except SimCfg.MultipleConfigFiles, info:
+                except Exceptions.MultipleConfigFiles, info:
                     print "==== Error ===="
                     print "Either there are multiple .cfg files in the current directory"
                     print "or you need to give a path to the variant on which you want to"
                     print "run a test."
                     print ""
                     print "I found the following config files:"
-                    for i in info.data:
+                    for i in info.error_message:
                         print "  %s" % i
 #                    sys.exit(1)
-                except SimCfg.InvalidTest, info:
-                    print "The test '%s' does not exist. Check your spelling." % info.data
-                except SimCfg.InvalidPath, info:
-                    print "The path '%s' does not exist." % info.data
+                except Exceptions.InvalidTest, info:
+                    print "The test '%s' does not exist. Check your spelling." % info.error_message
+                except Exceptions.InvalidPath, info:
+                    print "The path '%s' does not exist." % info.error_message
 #                    sys.exit(1)
                 except Exception:
                     raise

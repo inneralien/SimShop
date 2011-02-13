@@ -68,8 +68,8 @@ class VerilogSim():
     def buildCmd(self):
         print "VerilogSim: Overload this method to create a custom command"
 
-class MissingRequiredFields(Exception):
-    def __init__(self, cfg, field):
-        Exception.__init__(self)
-        print "The config %s is missing the required field %s" % \
-            (cfg, field)
+#class MissingRequiredFields(Exception):
+#    def __init__(self, cfg, field):
+#        Exception.__init__(self)
+#        print "The config %s is missing the required field %s" % \
+#            (cfg, field)

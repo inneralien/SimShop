@@ -7,6 +7,7 @@ import string
 from ConfigParser import NoOptionError
 from ConfigParser import SafeConfigParser
 from test_template import test_template
+import Exceptions
 import distutils
 
 class SimCfg(SafeConfigParser):
@@ -91,7 +92,7 @@ class SimCfg(SafeConfigParser):
                 if(found is not None):
                     self.cfg_files.append("%s%s%s" % (directory, os.sep, f))
         if(len(self.cfg_files) > 1):
-            raise MultipleConfigFiles(self.cfg_files)
+            raise Exceptions.MultipleConfigFiles('readCfg', self.cfg_files, None)
         else:
             self.read(self.cfg_files[0])
 
@@ -158,9 +159,9 @@ class SimCfg(SafeConfigParser):
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
             else:
-                raise InvalidTest(self.test_section)
+                raise Exceptions.InvalidTest('verifyTarget', self.test_section, None)
         else:
-            raise InvalidPath(self.test_section)
+            raise Exceptions.InvalidPath('verifyTarget', self.test_section, None)
 
     def genAutoTest(self, dry_run=False, use_variant_dir=False):
         """
@@ -220,25 +221,6 @@ class SimCfg(SafeConfigParser):
             )
             f.close()
 
-class SimCfgError(Exception):
-    """Base class for exceptions"""
-    pass
-
-class MultipleConfigFiles(SimCfgError):
-    def __init__(self, cfgs):
-        self.data = cfgs
-
-class NoTestSpecified(SimCfgError):
-    def __init__(self, target):
-        self.data = target
-
-class InvalidTest(SimCfgError):
-    def __init__(self, test):
-        self.data = test
-
-class InvalidPath(SimCfgError):
-    def __init__(self, test):
-        self.data = test
 
 if __name__ == '__main__':
     s = SimCfg()

@@ -8,3 +8,41 @@ class BaseError(Exception):
 class LogFileDoesNotExistError(BaseError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
+
+#==============================================================================
+# TestFind Exceptions
+#==============================================================================
+class TestFindError(BaseError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+class NoConfigFileFound(TestFindError):
+    def __init__(self, method_name, error_message, long_message):
+        TestFindError.__init__(self, method_name, error_message, long_message)
+
+class NoTestStructure(TestFindError):
+    def __init__(self, method_name, error_message, long_message):
+        TestFindError.__init__(self, method_name, error_message, long_message)
+
+#==============================================================================
+# SimCfg Exceptions
+#==============================================================================
+class SimCfgError(BaseError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+class MultipleConfigFiles(SimCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+class NoTestSpecified(SimCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+class InvalidTest(SimCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+class InvalidPath(SimCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)

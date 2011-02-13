@@ -1,5 +1,6 @@
 import os, re
 from ConfigParser import SafeConfigParser
+import Exceptions
 
 class TestFind():
     """
@@ -30,7 +31,7 @@ class TestFind():
                         self.cfg_files.append(cfg_file)
 #                        self.read(self.cfg_file)
         if(len(self.cfg_files) == 0):
-            raise NoConfigFileFound('getCfgs', 'There were no config files found in the current path.', None)
+            raise Exceptions.NoConfigFileFound('getCfgs', 'There were no config files found in the current path.', None)
         print "Found the following config files"
         print "--------------------------------"
         for file in self.cfg_files:
@@ -80,7 +81,7 @@ class TestFind():
         last_path = ''
         last_test = ''
         if(len(self.variants_and_tests) == 0):
-            raise NoTestStructure('listTests', 'No tests were found to list','buildTestStruct() must be run first')
+            raise Exceptions.NoTestStructure('listTests', 'No tests were found to list','buildTestStruct() must be run first')
         for i in self.variants_and_tests:
                 # Variant
             for v in i:
@@ -103,49 +104,3 @@ class TestFind():
         else:
             print "    sim %s/%s" % (last_path, last_test)
         print ""
-
-
-    def listTests_orig(self):
-        """
-        List all available tests from the current working directory down.
-        """
-        self.getCfgs()
-        if(len(self.cfg_files) > 0):
-            for config in self.cfg_files:
-                cfg = SafeConfigParser()
-                cfg.read(config)
-                if(cfg.has_option('DEFAULT', 'PROJ_ROOT')):
-                    proj_root = cfg.get('DEFAULT', 'PROJ_ROOT')
-                else:
-                    proj_root = ''
-                path = os.path.normpath(os.path.split(config)[0])
-                print "%s/" % (path) #, cfg.cp.get('DEFAULT', 'VARIANT_NAME'))
-                a = cfg.sections()
-                a.sort()
-                for section in a:
-                    print "    %s" % section
-        print ""
-        print "To run a simulation:"
-        print "simulate <path_to/variant>/<test>"
-        print ""
-        print "Example:"
-        if(path == "."):
-            print "    sim %s" % (a[0])
-        else:
-            print "    sim %s/%s" % (path, a[0])
-        print ""
-
-class TestFindError(Exception):
-    def __init__(self, method_name, error_message, long_message):
-        Exception.__init__(self)
-        self.method_name = method_name
-        self.error_message = error_message
-        self.long_message = long_message
-
-class NoConfigFileFound(TestFindError):
-    def __init__(self, method_name, error_message, long_message):
-        TestFindError.__init__(self, method_name, error_message, long_message)
-
-class NoTestStructure(TestFindError):
-    def __init__(self, method_name, error_message, long_message):
-        TestFindError.__init__(self, method_name, error_message, long_message)
