@@ -105,7 +105,7 @@ class ScoreBoard():
         test_score = self.scores[variant].add(test)
 
         # A log file contains 1 variant, 1 test and 0 or more tasks
-        task_scores = self.searchFile(sim_cfg, test_score)
+        self.searchFile(sim_cfg, test_score)
 
     def searchFile(self, sim_cfg, test_score):
         """
@@ -294,6 +294,8 @@ class Score(list):
         self.children = []
         self.current_child = None
 
+        self.level = 1
+
     def add(self, name):
 #        print "adding %s to %s" % (name, self.name)
         self.append(name)
@@ -303,7 +305,7 @@ class Score(list):
 
     def incError(self):
 #        print "Incrementing error in %s" % (self.name)
-        len_children = len(self.children)
+#        len_children = len(self.children)
         if(self.parent is not None):
             self.parent.incError()
         self.error_count += 1
@@ -320,36 +322,220 @@ class Score(list):
             self.parent.incIncomplete()
         self.incomplete_count += 1
 
+    def getChildren(self, data):
+        print ' ' * self.level
+        for kid in self.children:
+            self.level += 1
+            self.getChildren(kid)
+            self.level -=1
+
+class newScore():
+    """
+    A dictionary version of Score to aid in recursive traversal
+    """
+    def __init__(self, name, parent=None):
+        self.level = 0
+        self.lasts = []
+        self.data = {   'name'   :  name,
+                        'parent' : parent,
+                        'kids'   : [],
+                    }
+
+    def __getitem__(self, key):
+        return self.data[key]
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
+    def add(self, name):
+        score = newScore(name, self)
+        self.data['kids'].append(score)
+        return score
+
+    def traverse(self, data=None, last=False):
+        if(data is None):
+            data = self.data
+
+        if(self.level not in self.lasts):
+            self.lasts.append(self.level)
+
+        # Lay out the tree pipes if necessary
+        for i in range(1, self.level):
+            if(i in self.lasts):
+                sys.stdout.write("|   ")# % (lasts[i], i))
+            else:
+                sys.stdout.write("    ")# % (lasts[i], i))
+
+        # If the item is the tail of the branch it gets a ` instead of a |
+        if(self.level != 0):
+            if(last):
+                sys.stdout.write('`')
+            else:
+                sys.stdout.write('|')
+
+        # All levels but the top get --
+        if(self.level != 0):
+            sys.stdout.write('-- %s\n' % data['name'])
+        else:
+            sys.stdout.write('%s\n' % data['name'])
+
+        # Remove branches that have ended
+        if(self.level in self.lasts):
+            if(last):
+                self.lasts.remove(self.level)
+
+        # Recurse through the children
+        for i in range(len(data['kids'])):
+            last = (i == len(data['kids']) - 1)
+            self.level += 1
+            self.traverse(data['kids'][i], last)
+            self.level -= 1
+
+
+#lasts = []
+#def traverse(data, last=False):
+#    if(traverse.level not in lasts):
+#        lasts.append(traverse.level)
+#
+#    # Lay out the tree pipes if necessary
+#    for i in range(1, traverse.level):
+#        if(i in lasts):
+#            sys.stdout.write("|   ")# % (lasts[i], i))
+#        else:
+#            sys.stdout.write("    ")# % (lasts[i], i))
+#
+#    # If the item is the tail of the branch it gets a ` instead of a |
+#    if(traverse.level != 0):
+#        if(last):
+#            sys.stdout.write('`')
+#        else:
+#            sys.stdout.write('|')
+#
+#    # All levels but the top get --
+#    if(traverse.level != 0):
+#        sys.stdout.write('-- %s\n' % data['name'])
+#    else:
+#        sys.stdout.write('%s\n' % data['name'])
+#
+#    # Remove branches that have ended
+#    if(traverse.level in lasts):
+#        if(last):
+#            lasts.remove(traverse.level)
+#
+#    # Recurse through the children
+#    for i in range(len(data['kids'])):
+#        last = (i == len(data['kids']) - 1)
+#        traverse.level += 1
+#        traverse(data['kids'][i], last)
+#        traverse.level -= 1
+
+
+#def traverse_so_close(data, last=False):
+#    pk = 0
+#    k  = 0
+#    st = ''
+#    if(last):
+#        traverse.lasts.pop()
+#    if(data['parent'] is not None):
+#        pk = len(data['parent']['kids'])
+#        k  = len(data['kids'])
+#        st = "(%d: %d -> %d %s %r)" % (traverse.level, pk, k, last, traverse.lasts)
+#    if(traverse.level == 0):
+#        print data['name'], st
+#    else:
+#        if(last):
+#            s = '' * (traverse.level-1)
+#            sys.stdout.write('%s' % s)
+#            print '' * (traverse.level-1) + '-- ' + data['name'], st
+#        else:
+#            s1 = '' * (traverse.level-1)
+#            print '' * (traverse.level-1) + '-- ' + data['name'], st
+#    for i in range(len(data['kids'])):
+#        last = (i == len(data['kids']) - 1)
+#        if(not last):
+#            if(traverse.level not in traverse.lasts):
+#                traverse.lasts.append(traverse.level)
+#        for j in traverse.lasts:
+#            s = '    ' * j
+##            s = '    ' * j
+#            if(last):
+#                sys.stdout.write("%s`" % s)
+#            else:
+#                sys.stdout.write("%s|" % s)
+#        traverse.level += 1
+#        traverse(data['kids'][i], last)
+#        traverse.level -= 1
 
 if __name__ == '__main__':
-    variants = {}
-    variants['v0'] = Score(name='v0')
 
-    # Add a new test to the variant
-    test = variants['v0'].add('test0')
+    a = newScore('Top')
+    c = a.add('compile')
+    d = c.add('test0')
+    d.add('task0')
+    d.add('task1')
+    d = c.add('test1')
+    d.add('task0')
+    d.add('task1')
+    d = c.add('test2')
+    d.add('task0')
+    d.add('task1')
+    sa = a.add('simulate')
+    sb = sa.add('test0')
+    sc = sb.add('task0')
+    sc = sb.add('task1')
+    sa.add('test1')
+    sa.add('test2')
 
-    # Add a new task to the test
-    task = test.add('task0')
-    task.incError()
-    # Add another new task to the test
-    task = test.add('task1')
-    task.incError()
+#    sa = a.add('sub')
+#    sa = a.add('sub')
+#    sb = sa.add('sub_sub')
+#    sb = sa.add('sub_sub')
+#    sb.add('sub_sub_sub')
+#    sb.add('sub_sub_sub')
+#    sb = sa.add('sub_sub')
+#    a.add('sub')
 
-    # Add a new test to the variant
-    test = variants['v0'].add('test1')
-    # Add a new task to the test
-    task = test.add('taskA')
-    task.incError()
-    # Add another new task to the test
-    task = test.add('taskB')
-    task.incError()
+#    traverse.lasts = []
+#    traverse.level = 0
+#    traverse(a)
+    a.traverse()
 
-    # Add a new test to the variant with no tasks
-    test = variants['v0'].add('test1')
-    test.incError()
+#    targets = ['test0', 'test1', 'test2']
+#    for target in targets:
+#        print "Compiling %s" % target
+#        print "Simulating %s" % target
+#        compile_score       = Score(name = target)
+#        sim_error_score     = Score(name = target)
+#        task_score          = sim_error_score.add('task0')
 
-    print variants['v0'].name, variants['v0'].error_count
-    for child in variants['v0'].children:
-        print "  ", child.name, child.error_count
-        for c in child.children:
-            print "    ", c.name, c.error_count
+#    variants = {}
+#    variants['v0'] = Score(name='v0')
+#
+#    # Add a new test to the variant
+#    test = variants['v0'].add('test0')
+#
+#    # Add a new task to the test
+#    task = test.add('task0')
+#    task.incError()
+#    # Add another new task to the test
+#    task = test.add('task1')
+#    task.incError()
+#
+#    # Add a new test to the variant
+#    test = variants['v0'].add('test1')
+#    # Add a new task to the test
+#    task = test.add('taskA')
+#    task.incError()
+#    # Add another new task to the test
+#    task = test.add('taskB')
+#    task.incError()
+#
+#    # Add a new test to the variant with no tasks
+#    test = variants['v0'].add('test1')
+#    test.incError()
+#
+#    print variants['v0'].name, variants['v0'].error_count
+#    for child in variants['v0'].children:
+#        print "  ", child.name, child.error_count
+#        for c in child.children:
+#            print "    ", c.name, c.error_count
