@@ -10,6 +10,7 @@ import re
 import traceback
 
 import Exceptions
+import builders.Exceptions
 from builders.IcarusVerilog import IcarusVerilog
 
 import ScoreBoard
@@ -128,8 +129,9 @@ if __name__ == '__main__':
                     if(not options.compile_only):
                         try:
                             sim.run()
-                        except ProcessFail, info:
+                        except builders.Exceptions.ProcessFail, info:
                             print "ERROR: %s" % info.error_message
+#                            score_board.incIncomplete()
                     else:
                         print "--Compile only--"
                         sim.run(0)
