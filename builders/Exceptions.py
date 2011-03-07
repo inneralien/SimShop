@@ -6,5 +6,6 @@ class BuildersBaseError(Exception):
         self.long_message = long_message
 
 class ProcessFail(BuildersBaseError):
-    def __init__(self, method_name, error_message, long_message):
+    def __init__(self, method_name, error_message, long_message, log_file=None):
         BuildersBaseError.__init__(self, method_name, error_message, long_message)
+        self.log_file = log_file

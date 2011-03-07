@@ -1,6 +1,7 @@
 import os
 from CmdArgs import CmdArgs
 from CmdRun import CmdRun
+import Exceptions
 
 class VerilogSim():
     def __init__(self, cfg):
@@ -63,7 +64,35 @@ class VerilogSim():
             s = CmdRun([self.cmds[index]])
         else:
             s = CmdRun(self.cmds)
-        s.run()
+        try:
+            s.run()
+        except Exceptions.ProcessFail, info:
+#            print dir(info)
+#            print "Error message", info.error_message
+#            print info.method_name[0]
+            stdio_logfile = info.method_name[0] + '_cmd.log'
+            build_logfile =  self.cfg.build_path + '/' + stdio_logfile
+#            print "BUILD_LOGFILE", build_logfile
+            info.log_file = build_logfile
+            f = open(build_logfile, 'w')
+            f.write(info.error_message)
+            f.close()
+            raise
+
+#        for commands in stdio:
+#            stdio_logfile = commands['cmd'][0] + '_cmd.log'
+#            build_logfile =  self.cfg.build_path + '/' + stdio_logfile
+#            f = open(build_logfile, 'w')
+#            if(commands['stdout'] is not None):
+#                f.write(commands['stdout'])
+#            if(commands['stderr'] is not None):
+#                f.write(commands['stderr'])
+#            f.close()
+
+#                print commands['stderr']
+#        print "VerilogSim Stdio:", stdio
+#        return stderr
+#        (stdout, stderr) = s.run()
 
     def buildCmd(self):
         print "VerilogSim: Overload this method to create a custom command"

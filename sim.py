@@ -98,7 +98,7 @@ if __name__ == '__main__':
         plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):
-        score_board = ScoreBoard.ScoreBoard()
+        score_board = ScoreBoard.ScoreBoard('Simulation Score')
         score_board.addErrorRegex(re.compile(r'ERROR:'))
         score_board.addWarningRegex(re.compile(r'WARNING:'))
         score_board.setTestBeginRegex(re.compile(r'TEST_BEGIN'))
@@ -112,51 +112,43 @@ if __name__ == '__main__':
                         # We don't want stale variables from previous runs
                     sim_cfg = SimCfg.SimCfg()
                     cfg_list.append(sim_cfg)
-                    sim_cfg.verifyTarget(target)
-                    sim_cfg.genAutoTest(options.dry_run, True)
-                    sim_cfg['defines'] += " " + defines
-                    sim_cfg['plusargs'] += " " + plusargs
+                    try:
+                        sim_cfg.verifyTarget(target)
+                    except Exceptions.InvalidTest, info:
+                        print "The test '%s' does not exist. Check your spelling." % info.error_message
+                    except Exceptions.InvalidPath, info:
+                        print "The path '%s' does not exist." % info.error_message
+                    except Exceptions.MultipleConfigFiles, info:
+                        print "Multiple Config Files"
+                        print "I found the following config files"
+                        for i in info.error_message:
+                            print " %s" % i
 
-                    sim = IcarusVerilog(sim_cfg)
+                    score_board.addVariant(sim_cfg.variant)
 
-                    sim.buildCompCmd()
-                    sim.buildSimCmd()
-                    if(options.dry_run):
-                        for cmd in sim.cmds:
-                            print " ".join(cmd)
-                        break
-#                        sys.exit(0)
-                    if(not options.compile_only):
-                        try:
-                            sim.run()
-                        except builders.Exceptions.ProcessFail, info:
-                            print "ERROR: %s" % info.error_message
-#                            score_board.incIncomplete()
-                    else:
-                        print "--Compile only--"
-                        sim.run(0)
-#                        print sim.cfg['logfile']
-#                        print sim.cfg.variant
-#                        print sim.cfg.test
-#                        print sim.cfg.path
-#                        print sim.cfg.build_path
-#                        print sim.cfg.tasks
-                except Exceptions.MultipleConfigFiles, info:
-                    print "==== Error ===="
-                    print "Either there are multiple .cfg files in the current directory"
-                    print "or you need to give a path to the variant on which you want to"
-                    print "run a test."
-                    print ""
-                    print "I found the following config files:"
-                    for i in info.error_message:
-                        print "  %s" % i
-#                    sys.exit(1)
-                except Exceptions.InvalidTest, info:
-                    print "The test '%s' does not exist. Check your spelling." % info.error_message
-                except Exceptions.InvalidPath, info:
-                    print "The path '%s' does not exist." % info.error_message
-#                    sys.exit(1)
-                except Exception:
+                    if(not sim_cfg.invalid):
+                        sim_cfg.genAutoTest(options.dry_run, True)
+                        sim_cfg['defines'] += " " + defines
+                        sim_cfg['plusargs'] += " " + plusargs
+
+                        sim = IcarusVerilog(sim_cfg)
+
+                        sim.buildCompCmd()
+                        sim.buildSimCmd()
+                        if(options.dry_run):
+                            for cmd in sim.cmds:
+                                print " ".join(cmd)
+                            break
+                        if(not options.compile_only):
+                            try:
+                                stdio = sim.run()
+                            except builders.Exceptions.ProcessFail, info:
+                                pass
+                        else:
+                            print "--Compile only--"
+                            sim.run(0)
+
+                except:
                     raise
 
         except KeyboardInterrupt:
@@ -185,7 +177,133 @@ if __name__ == '__main__':
                             print info.long_message
                         else:
                             print "(use -v option to print verbose error messages)"
-                score_board.printASCIIReport()
+#                    except:
+#                        pass
+#                        raise
+
+                # Determine longest string for pretty printing the results
+                longest = 0
+#                for variant in score_board.variant_list:
+#                    score = score_board.scores[variant]
+                longest_str = score_board.longestString()
+#                print longest_str
+#                    if(longest_str > longest):
+#                        longest = longest_str
+
+                # Pretty print the test results
+#                print "TEST SUMMARY"
+#                print "-" * (79)
+                print ""
+                error_count = 0
+                warning_count = 0
+                incomplete_count = 0
+#                for variant in score_board.variant_list:
+#                    score = score_board.scores[variant]
+                error_count = score_board['error_count']
+                warning_count = score_board['warning_count']
+                incomplete_count = score_board['incomplete_count']
+                total_nodes = score_board['total_nodes']
+                score_board.printTree(max_level=score_board.max_level, pad=longest_str+4)
+#                print total_nodes, error_count, warning_count, incomplete_count
+#                print "Incomplete count: ", score_board['incomplete_count']
+#                print "Invalid count:    ", score_board['invalid_count']
+#                print "Error count:      ", score_board['error_count']
+#                print "Warning count:    ", score_board['warning_count']
+
+                print ""
+
+                variants_failed = 0.
+                tests_failed = 0.
+                tasks_failed = 0.
+                for v in score_board['kids']:
+                    if(not v['pass']):
+                        variants_failed += 1
+                    for t in v['kids']:
+                        if(not t['pass']):
+                            tests_failed += 1
+                        for task in t['kids']:
+                            if(not task['pass']):
+                                tasks_failed += 1
+
+                total_scores = 0.
+                total_failures = 0.
+                total_passed = 0.
+                for v in score_board['kids']:
+                    # if(no kids and didn't pass): increment failures count
+                    if(len(v['kids']) == 0):
+                        total_scores += 1
+                        if(not v['pass']):
+                            total_failures += 1
+                        else:
+                            total_passed += 1
+                    for t in v['kids']:
+                        if(len(t['kids']) == 0):
+                            total_scores += 1
+                            if(not t['pass']):
+                                total_failures += 1
+                            else:
+                                total_passed += 1
+                        for task in t['kids']:
+                            if(len(task['kids']) == 0):
+                                total_scores += 1
+                                if(not task['pass']):
+                                    total_failures += 1
+                                else:
+                                    total_passed += 1
+
+
+                tests_passed = score_board.test_count - tests_failed
+                tasks_passed = score_board.task_count - tasks_failed
+                if(score_board.test_count != 0):
+                    tests_percent_passed = float(tests_passed)/float(score_board.test_count)*100.
+                else:
+                    tests_percent_passed = 0
+                tests_percent_failed = 100. - tests_percent_passed
+
+                if(score_board.task_count != 0):
+                    tasks_percent_passed = float(tasks_passed)/float(score_board.task_count)*100.
+                else:
+                    tasks_percent_passed = 0
+                tasks_percent_failed = 100. - tasks_percent_passed
+
+#                print "Total Scores  : %d" % total_scores
+                print "Passed      %d/%d (%.1f%%)" % (total_passed, total_scores, (total_passed/total_scores)*100.)
+                print "Failed      %d/%d (%.1f%%)" % (total_failures, total_scores, (total_failures/total_scores)*100.)
+                print "Invalid     %d" % (score_board['invalid_count'])
+                print "Incomplete  %d" % (score_board['incomplete_count'])
+                print "Errors      %d" % (score_board['error_count'])
+                print "Warnings    %d" % (score_board['warning_count'])
+#                print ""
+#                print "Tests: Failed/Total: %d/%d (%d%%)" % (tests_failed, score_board.test_count, tests_percent_passed)
+#                print "Tasks: Failed/Total: %d/%d (%d%%)" % (tasks_failed, score_board.task_count, tasks_percent_passed)
+#                print ""
+#                print "Tally:"
+##                print "%d tasks in %d tests" % (score_board.task_count, score_board.test_count)
+#                if(score_board.test_count == 1):
+#                    print "%d test with %d recorded tasks" % (score_board.test_count,score_board.task_count)
+#                else:
+#                    print "%d tests with %d recorded tasks" % (score_board.test_count,score_board.task_count)
+##                print "Tasks          : %d" % (score_board.task_count)
+##                print "Tests          : %d" % (score_board.test_count)
+#                print "Passed         : %d (%.1f%%)" % (tests_passed, tests_percent_passed)
+#                print "Failed         : %d (%.1f%%)" % (tests_failed, tests_percent_failed)
+#                print "    Invalid    : %d (%.1f%%)" % (score_board['invalid_count'], 0)
+#                print "    Incomplete : %d (%.1f%%)" % (score_board['incomplete_count'], 0)
+#                print ""
+#                print "Total Errors   : %d" % (score_board['error_count'])
+#                print "Total Warnings : %d" % (score_board['warning_count'])
+#
+#                print "--"
+#                print "Tests Passed  : %d/%d (%d%%)" % (tests_passed, score_board.test_count, tests_percent_passed)
+#                print "Tests Failed  : %d/%d (%d%%)" % (tests_failed, score_board.test_count, tests_percent_failed)
+#                print ""
+#                print "Tasks Passed  : %d/%d (%d%%)" % (tasks_passed, score_board.task_count, tasks_percent_passed)
+#                print "Tasks Failed  : %d/%d (%d%%)" % (tasks_failed, score_board.task_count, tasks_percent_failed)
+#                print ""
+#                print "Invalid    : %d (%.1f%%)" % (score_board['invalid_count'], 0)
+#                print "Incomplete : %d (%.1f%%)" % (score_board['incomplete_count'], 0)
+#                print ""
+
             os._exit(1)
     else:
         parser.print_help()

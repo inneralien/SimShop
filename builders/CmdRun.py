@@ -8,6 +8,7 @@ class CmdRun():
     def __init__(self, cmds=[]):
         self.cmds = cmds
         self.show_cmds = True
+#        self.stdio = []
 
     def showCmds(self, enable):
         self.show_cmds = bool(enable)
@@ -17,11 +18,20 @@ class CmdRun():
             if(self.show_cmds):
                 print " ".join(cmd)
             try:
-                run_process = subprocess.Popen(cmd,
+                run_process = subprocess.Popen(cmd, stderr=subprocess.PIPE
                 )
                 (stdout, stderr) = run_process.communicate()
+#                self.stdio.append({'cmd':cmd, 'stdout':stdout, 'stderr':stderr})
                 if(run_process.returncode):
-                    raise Exceptions.ProcessFail('run', 'The previous command failed', None)
+#                    print dir(run_process.stderr)
+#                    stderr = "%s" % run_process.stderr
+#                    print "STDOUT:", run_process.stdout
+                    print "STDERR:", stderr
+#                    for line in run_process.stderr:
+#                        print ".", line
+#                    return self.stdio
+#                    raise Exceptions.ProcessFail('run', 'The previous command failed', stderr)
+                    raise Exceptions.ProcessFail(cmd, stderr, None)
             except OSError, (instance):
 #                print dir(instance)
 #                print instance.child_traceback
@@ -39,6 +49,7 @@ class CmdRun():
 #                    print stdout
 #                if(stderr is not None):
 #                    print stderr
+#        return self.stdio
 
 #class ProcessFail(Exception):
 #    def __init__(self, message):

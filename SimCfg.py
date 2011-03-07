@@ -25,6 +25,7 @@ class SimCfg(SafeConfigParser):
                 'DUMPVARS':         '(0,tb)',
                 'SIMFILE':          'sim',
                 'LOGFILE':          'sim.log',
+                'BUILDFILE':        'build.log',
                 'PROJ_ROOT':        './',
                 'DEFINES':          '',
                 'PLUSARGS':         '',
@@ -38,6 +39,7 @@ class SimCfg(SafeConfigParser):
                 'SIMCMD':           'vvp',
                 'WARN':             'all',
         }
+        self.invalid = False
         self.post_read_defaults = []
         self.invalid_default_items = []
 
@@ -92,6 +94,7 @@ class SimCfg(SafeConfigParser):
                 if(found is not None):
                     self.cfg_files.append("%s%s%s" % (directory, os.sep, f))
         if(len(self.cfg_files) > 1):
+            self.invalid = True
             raise Exceptions.MultipleConfigFiles('readCfg', self.cfg_files, None)
         else:
             self.read(self.cfg_files[0])
@@ -146,7 +149,7 @@ class SimCfg(SafeConfigParser):
         if(self.variant == ""):
             (n, self.variant) = os.path.split(os.getcwd())
         print ""
-        print "== Verifying target... =="
+        print "Verifying target..."
         print "  PATH".ljust(9), ":", self.path
         print "  VARIANT".ljust(9), ":", self.variant
         print "  TEST".ljust(9), ":", self.test_section
@@ -159,8 +162,10 @@ class SimCfg(SafeConfigParser):
                 self.tasks = [x+';' for x in self.tasks]
                 self.tasks = "\n".join(str(x) for x in self.tasks)
             else:
+                self.invalid = True
                 raise Exceptions.InvalidTest('verifyTarget', self.test_section, None)
         else:
+            self.invalid = True
             raise Exceptions.InvalidPath('verifyTarget', self.test_section, None)
 
     def genAutoTest(self, dry_run=False, use_variant_dir=False):
@@ -204,18 +209,25 @@ class SimCfg(SafeConfigParser):
         self.outfile = self.build_path + '/' + self['SIMFILE']
 #        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
 #        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
+
+            # Remove existing and/or create new build directory
         if(dry_run is True):
-            print "Build Path:", self.build_path
+            pass
+#            print "Build Path:", self.build_path
         else:
+            if(os.path.exists(self.build_path)):
+                print "Removing old build directory: %s" % self.build_path
+                print ""
+                distutils.dir_util.remove_tree(self.build_path)
+            print "Making new build directory: %s" % self.build_path
+            print ""
             distutils.dir_util.mkpath(self.build_path)
             s = string.Template(test_template)
-#            f = open(self['auto_test'], 'w')
             f = open(self.auto_test, 'w')
             f.write(s.safe_substitute( {'timescale': self['timescale'],
                                         'timeout': self['timeout'],
                                         'tasks': self.tasks,
                                         'dumpfile': self.dumpfile,
-#                                        'dumpfile': self['dumpfile'],
                                         'dumpvars': dumpvars
                                         })
             )
