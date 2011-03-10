@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Copyright (C) 2010-2011 RTLCores LLC.
+# Copyright 2010-2011, RTLCores. All rights reserved.
 # http://rtlcores.com
+# See LICENSE.txt
 
 import sys,os
 from optparse import OptionParser

@@ -1,3 +1,7 @@
+# Copyright 2010-2011, RTLCores. All rights reserved.
+# http://rtlcores.com
+# See LICENSE.txt
+
 test_template = """
 `timescale $timescale
 //`include "testlib.vh"

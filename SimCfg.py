@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+# Copyright 2010-2011, RTLCores. All rights reserved.
+# http://rtlcores.com
+# See LICENSE.txt
+
 import re
 import os, os.path
 import string
