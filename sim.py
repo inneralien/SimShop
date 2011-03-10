@@ -107,24 +107,33 @@ if __name__ == '__main__':
         cfg_list = []
         try:
             for target in args:
+                # Make a new sim_cfg for each new target
+                # We don't want stale variables from previous runs
+                sim_cfg = SimCfg.SimCfg()
+                cfg_list.append(sim_cfg)
                 try:
-                        # Make a new sim_cfg for each new target
-                        # We don't want stale variables from previous runs
-                    sim_cfg = SimCfg.SimCfg()
-                    cfg_list.append(sim_cfg)
-                    try:
-                        sim_cfg.verifyTarget(target)
-                    except Exceptions.InvalidTest, info:
-                        print "The test '%s' does not exist. Check your spelling." % info.error_message
-                    except Exceptions.InvalidPath, info:
-                        print "The path '%s' does not exist." % info.error_message
-                    except Exceptions.MultipleConfigFiles, info:
-                        print "Multiple Config Files"
-                        print "I found the following config files"
-                        for i in info.error_message:
-                            print " %s" % i
-
+                    sim_cfg.verifyTarget(target)
+                except Exceptions.InvalidTest, info:
+                    print "The test '%s' does not exist. Check your spelling." % info.error_message
+                except Exceptions.InvalidPath, info:
+                    print "The path '%s' does not exist." % info.error_message
+                except Exceptions.MultipleConfigFiles, info:
+                    print "Multiple Config Files"
+                    print "I found the following config files"
+                    for i in info.error_message:
+                        print " %s" % i
+#                    except:
+#                        pass
+#                except:
+#                    pass
+                finally:
                     score_board.addVariant(sim_cfg.variant)
+
+            for sim_cfg in cfg_list:
+#                print sim_cfg
+                try:
+#                    print "Adding variant: %s" % sim_cfg.variant
+#                    score_board.addVariant(sim_cfg.variant)
 
                     if(not sim_cfg.invalid):
                         sim_cfg.genAutoTest(options.dry_run, True)

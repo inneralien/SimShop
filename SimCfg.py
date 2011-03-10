@@ -166,7 +166,7 @@ class SimCfg(SafeConfigParser):
                 raise Exceptions.InvalidTest('verifyTarget', self.test_section, None)
         else:
             self.invalid = True
-            raise Exceptions.InvalidPath('verifyTarget', self.test_section, None)
+            raise Exceptions.InvalidPath('verifyTarget', self.variant, None)
 
     def genAutoTest(self, dry_run=False, use_variant_dir=False):
         """
