@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_option("-d", "--dumpon",
                         action='store_true',
                         dest="dumpon",
-                        help="enable dumping of waveform. This is the same as -DDUMPON")
+                        help="enable dumping of waveform. This is the same as -pDUMPON")
     parser.add_option("-v", "--verbose",
                         action='store_true',
                         dest="verbose",
@@ -55,10 +55,10 @@ if __name__ == '__main__':
                         default=[],
                         help="""Pass plusargs to the simulation.
                         sim -pDUMPON <testname>""")
-    parser.add_option("--clean",
-                        action="store_true",
-                        dest="clean",
-                        help="clean the simbuild directory")
+#    parser.add_option("--clean",
+#                        action="store_true",
+#                        dest="clean",
+#                        help="clean the simbuild directory")
 
     # List available tools, i.e. iverilog, vcs, modelsim
     # List available builders, i.e. IcarusVerilog
