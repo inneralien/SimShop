@@ -39,6 +39,11 @@ class IcarusVerilog(VerilogSim):
         ## in the config file
         self.populate()
 
+        # The test_files need to come before the rtl_files on the command
+        # line or it exposes a strange thing where Icarus will detect an
+        # rtl file that doesn't exist, but not return a non-zero exit code.
+        # This causes the sim executable to be generated and run but there
+        # is nothing to run, so it looks like it completes successfully.
     def buildCompCmd(self):
         self.comp_cmd = self['compcmd'] +  \
                         self['warn'].conv() +  \
@@ -46,8 +51,8 @@ class IcarusVerilog(VerilogSim):
                         self['defines'].conv() + \
                         self['rtl_inc_dirs'].conv() + \
                         self['test_inc_dirs'].conv() + \
-                        self['rtl_files'].conv() + \
                         self['test_files'].conv() + \
+                        self['rtl_files'].conv() + \
                         [self.cfg.auto_test]
 #                        [self.cfg['auto_test']]
         self.cmds.append(self.comp_cmd)
