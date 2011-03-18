@@ -76,7 +76,6 @@ class VerilogSim():
 #            print info.method_name[0]
             stdio_logfile = info.method_name[0] + '_cmd.log'
             build_logfile =  self.cfg.build_path + '/' + stdio_logfile
-#            print "BUILD_LOGFILE", build_logfile
             info.log_file = build_logfile
             f = open(build_logfile, 'w')
             f.write(info.error_message)

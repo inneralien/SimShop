@@ -43,11 +43,16 @@ class SimCfg(SafeConfigParser):
                 'SIMCMD':           'vvp',
                 'WARN':             'all',
         }
-        self.invalid = False
-        self.post_read_defaults = []
-        self.invalid_default_items = []
-
         SafeConfigParser.__init__(self, self.defaults)
+
+        self.invalid = False    # Invalid variant/test
+        self.incomplete = False # Incomplete Test
+        self.not_run = False    # Command failure
+        self.incomplete_error_message = None
+
+#        self.post_read_defaults = []
+#        self.invalid_default_items = []
+
         self.cfg_files = []
         self.target = None
         self.path = None

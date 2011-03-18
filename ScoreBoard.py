@@ -143,13 +143,18 @@ class ScoreBoard(Score):
         if(len(self.scores) != 0):
 #            print "TEST", test
 #            print "Variant", variant
+#            if(sim_cfg.incomplete is True):
+#                print "INCOMPLETE"
+#                print "%r" % self
+#                self.incIncomplete(sim_cfg.error_message)
+#                return
+
             if(variant in self.scores):
                 test_score = self.addTest(test, variant)
 #                test_score = self.scores[variant].add(test)
             else:
-                print "NOWHERE"
-                self.incIncomplete()
-                return
+                self.incNotRun()
+#                return
 #                raise
             # A log file contains 1 variant, 1 test and 0 or more tasks
             # If the sim_cfg is marked as invalid then the test should be
@@ -174,6 +179,7 @@ class ScoreBoard(Score):
         @param  test_score: A Score object
         """
         logfile = ''
+        prev_score = None
         score = test_score
         try:
             logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
@@ -185,7 +191,7 @@ class ScoreBoard(Score):
         task_list = []
 
         if(not os.path.exists(logfile)):
-            score.incIncomplete()
+            score.incNotRun()
             raise Exceptions.LogFileDoesNotExistError('searchFile',
                 'The file to be scored does not exist: %s' % logfile,
                 help.missing_logfile_help)
@@ -225,7 +231,8 @@ class ScoreBoard(Score):
                 s = self.testBeginRegex.search(i)
                 if(s is not None):
                     if(got_test_begin is True):
-                        score.incIncomplete()
+#                        score.incIncomplete()
+                        prev_score.incIncomplete()
                     else:
                         got_test_begin = True
 
@@ -237,6 +244,8 @@ class ScoreBoard(Score):
                         score.incIncomplete()
                     else:
                         got_test_begin = False
+
+            prev_score = score
 
             # If the simulation is canceled then it should be reported
             # as an incomplete. Right?

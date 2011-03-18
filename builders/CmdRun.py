@@ -29,13 +29,15 @@ class CmdRun():
                 if(run_process.returncode):
 #                    print dir(run_process.stderr)
 #                    stderr = "%s" % run_process.stderr
-#                    print "STDOUT:", run_process.stdout
-                    print "STDERR:", stderr
+                    print stderr
 #                    for line in run_process.stderr:
 #                        print ".", line
 #                    return self.stdio
 #                    raise Exceptions.ProcessFail('run', 'The previous command failed', stderr)
                     raise Exceptions.ProcessFail(cmd, stderr, None)
+                else:
+                    pass
+#                    print run_process.returncode
             except OSError, (instance):
 #                print dir(instance)
 #                print instance.child_traceback

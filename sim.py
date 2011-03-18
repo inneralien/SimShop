@@ -152,8 +152,14 @@ if __name__ == '__main__':
                         if(not options.compile_only):
                             try:
                                 stdio = sim.run()
+#                                print "RUN"
                             except builders.Exceptions.ProcessFail, info:
-                                pass
+#                                print "PROCESS FAIL"
+                                sim_cfg.not_run = True
+                                sim_cfg.error_message = info.error_message
+#                                print info.error_message
+#                                print info.log_file
+#                                pass
                         else:
                             print "--Compile only--"
                             sim.run(0)
@@ -180,7 +186,11 @@ if __name__ == '__main__':
                 print ""
                 for cfg in cfg_list:
                     try:
-                        score_board.scoreTestFromCfg(cfg)
+                        if(cfg.not_run is True):
+#                            print score_board.scores[cfg.variant]
+                            score_board.scores[cfg.variant].incNotRun(cfg.error_message)
+                        else:
+                            score_board.scoreTestFromCfg(cfg)
                     except Exceptions.LogFileDoesNotExistError, info:
                         print info.error_message
                         if(options.verbose):
@@ -213,106 +223,10 @@ if __name__ == '__main__':
                 warning_count = score_board['warning_count']
                 incomplete_count = score_board['incomplete_count']
                 total_nodes = score_board['total_nodes']
-                score_board.printTree(max_level=score_board.max_level, pad=longest_str+4)
-#                print total_nodes, error_count, warning_count, incomplete_count
-#                print "Incomplete count: ", score_board['incomplete_count']
-#                print "Invalid count:    ", score_board['invalid_count']
-#                print "Error count:      ", score_board['error_count']
-#                print "Warning count:    ", score_board['warning_count']
-
-                print ""
-
-                variants_failed = 0.
-                tests_failed = 0.
-                tasks_failed = 0.
-                for v in score_board['kids']:
-                    if(not v['pass']):
-                        variants_failed += 1
-                    for t in v['kids']:
-                        if(not t['pass']):
-                            tests_failed += 1
-                        for task in t['kids']:
-                            if(not task['pass']):
-                                tasks_failed += 1
-
-                total_scores = 0.
-                total_failures = 0.
-                total_passed = 0.
-                for v in score_board['kids']:
-                    # if(no kids and didn't pass): increment failures count
-                    if(len(v['kids']) == 0):
-                        total_scores += 1
-                        if(not v['pass']):
-                            total_failures += 1
-                        else:
-                            total_passed += 1
-                    for t in v['kids']:
-                        if(len(t['kids']) == 0):
-                            total_scores += 1
-                            if(not t['pass']):
-                                total_failures += 1
-                            else:
-                                total_passed += 1
-                        for task in t['kids']:
-                            if(len(task['kids']) == 0):
-                                total_scores += 1
-                                if(not task['pass']):
-                                    total_failures += 1
-                                else:
-                                    total_passed += 1
-
-
-                tests_passed = score_board.test_count - tests_failed
-                tasks_passed = score_board.task_count - tasks_failed
-                if(score_board.test_count != 0):
-                    tests_percent_passed = float(tests_passed)/float(score_board.test_count)*100.
-                else:
-                    tests_percent_passed = 0
-                tests_percent_failed = 100. - tests_percent_passed
-
-                if(score_board.task_count != 0):
-                    tasks_percent_passed = float(tasks_passed)/float(score_board.task_count)*100.
-                else:
-                    tasks_percent_passed = 0
-                tasks_percent_failed = 100. - tasks_percent_passed
-
-#                print "Total Scores  : %d" % total_scores
-                print "Passed      %d/%d (%.1f%%)" % (total_passed, total_scores, (total_passed/total_scores)*100.)
-                print "Failed      %d/%d (%.1f%%)" % (total_failures, total_scores, (total_failures/total_scores)*100.)
-                print "Invalid     %d" % (score_board['invalid_count'])
-                print "Incomplete  %d" % (score_board['incomplete_count'])
-                print "Errors      %d" % (score_board['error_count'])
-                print "Warnings    %d" % (score_board['warning_count'])
-#                print ""
-#                print "Tests: Failed/Total: %d/%d (%d%%)" % (tests_failed, score_board.test_count, tests_percent_passed)
-#                print "Tasks: Failed/Total: %d/%d (%d%%)" % (tasks_failed, score_board.task_count, tasks_percent_passed)
-#                print ""
-#                print "Tally:"
-##                print "%d tasks in %d tests" % (score_board.task_count, score_board.test_count)
-#                if(score_board.test_count == 1):
-#                    print "%d test with %d recorded tasks" % (score_board.test_count,score_board.task_count)
-#                else:
-#                    print "%d tests with %d recorded tasks" % (score_board.test_count,score_board.task_count)
-##                print "Tasks          : %d" % (score_board.task_count)
-##                print "Tests          : %d" % (score_board.test_count)
-#                print "Passed         : %d (%.1f%%)" % (tests_passed, tests_percent_passed)
-#                print "Failed         : %d (%.1f%%)" % (tests_failed, tests_percent_failed)
-#                print "    Invalid    : %d (%.1f%%)" % (score_board['invalid_count'], 0)
-#                print "    Incomplete : %d (%.1f%%)" % (score_board['incomplete_count'], 0)
-#                print ""
-#                print "Total Errors   : %d" % (score_board['error_count'])
-#                print "Total Warnings : %d" % (score_board['warning_count'])
-#
-#                print "--"
-#                print "Tests Passed  : %d/%d (%d%%)" % (tests_passed, score_board.test_count, tests_percent_passed)
-#                print "Tests Failed  : %d/%d (%d%%)" % (tests_failed, score_board.test_count, tests_percent_failed)
-#                print ""
-#                print "Tasks Passed  : %d/%d (%d%%)" % (tasks_passed, score_board.task_count, tasks_percent_passed)
-#                print "Tasks Failed  : %d/%d (%d%%)" % (tasks_failed, score_board.task_count, tasks_percent_failed)
-#                print ""
-#                print "Invalid    : %d (%.1f%%)" % (score_board['invalid_count'], 0)
-#                print "Incomplete : %d (%.1f%%)" % (score_board['incomplete_count'], 0)
-#                print ""
+                tree = score_board.printTree(max_level=score_board.max_level, pad=longest_str+4)
+                tally = score_board.printTally()
+                print tree
+                print tally
 
             os._exit(1)
     else:
