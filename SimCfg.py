@@ -48,10 +48,6 @@ class SimCfg(SafeConfigParser):
         self.invalid = False    # Invalid variant/test
         self.incomplete = False # Incomplete Test
         self.not_run = False    # Command failure
-        self.incomplete_error_message = None
-
-#        self.post_read_defaults = []
-#        self.invalid_default_items = []
 
         self.cfg_files = []
         self.target = None
@@ -66,15 +62,11 @@ class SimCfg(SafeConfigParser):
             return value
         except NoOptionError, (instance):
             print "LOG - missing config option: '%s'" % key
-#            return list()
             return ''
 
     def __setitem__(self, key, value):
-#        print dir(self)
         if(not self.has_option(self.test_section, key)):
             print "==== Missing option:", key
-#        print "%s -> %s" % (key.upper(), value)
-#        return self.set(self.test_section, key, value)
         self.set(self.test_section, key, value)
 
     def readCfg(self, path=None):
@@ -110,18 +102,15 @@ class SimCfg(SafeConfigParser):
 
             # DEFAULT Section Checks
         for item in self.items('DEFAULT'):
-#            self.post_read_defaults.append(item[0])
             if(item[0].upper() not in self.defaults):
                 print 'Unrecognized option "%s" in [DEFAULT] section of %s' % \
                     (item[0].upper(), os.path.normpath(self.cfg_files[0]))
                 self.remove_option('DEFAULT', item[0])
-#                self.invalid_default_items.append(item[0])
 
             # Test Section Checks
         for test in self.sections():
             for option in self.options(test):
                 if(option.upper() not in self.defaults):
-#                    if(option not in self.invalid_default_items):
                     print 'Unrecognized option "%s" in [%s] section of %s' % \
                         (option.upper(), test, os.path.normpath(self.cfg_files[0]))
                     self.remove_option(test, option)
@@ -142,14 +131,6 @@ class SimCfg(SafeConfigParser):
                 - path = ./
                 - variant = cwd
                 - test = test_name
-            - test_name (FUTURE)
-                - path = ./
-                - variant = cfg.get('DEFAULT', 'variant') else cwd
-                - test = test_name
-            - path/variant/test_*   (FUTURE: Regular expression in test name)
-                - path = path/variant
-                - variant = variant
-                - test = test_*
         """
         (self.path, self.test_section) = os.path.split(target)
         if(self.path == ""):
@@ -216,13 +197,10 @@ class SimCfg(SafeConfigParser):
         self.auto_test = self.build_path + '/' + self['AUTO_TEST_FILE']
         self.dumpfile = self.build_path + '/' + self['DUMPFILE']
         self.outfile = self.build_path + '/' + self['SIMFILE']
-#        self['auto_test'] = self.build_path + '/' + self['auto_test_file']
-#        self['dumpfile'] = self.build_path + '/' + self['dumpfile']
 
             # Remove existing and/or create new build directory
         if(dry_run is True):
             pass
-#            print "Build Path:", self.build_path
         else:
             if(os.path.exists(self.build_path)):
                 print "Removing old build directory: %s" % self.build_path
@@ -245,16 +223,8 @@ class SimCfg(SafeConfigParser):
 
 if __name__ == '__main__':
     s = SimCfg()
-#    print s.defaults()
-#    print dir(s)
     s.readCfg('./test/')
-#    s.test = 'DEFAULT'
-#    s.verifyTarget('scratch/BOB')
     print 'test', s.test_section
     print s['timescale']
     print s['builddir']
     print dir(s)
-#    print dir(s)
-#    print s.defaults()
-#    print s.get('DEFAULT', 'dumpfile')
-#    self.tasks = self.get(self.test, 'TASKS').split()

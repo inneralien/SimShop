@@ -88,14 +88,12 @@ if __name__ == '__main__':
     defines = ""
     plusargs = ""
     if(options.defines):
-#        print "DEFINES:", options.defines
         defines = " ".join("%s" % x for x in options.defines)
 
     if(options.dumpon):
         options.plusargs.append('DUMPON')
 
     if(options.plusargs):
-#        print "PLUSARGS:", options.plusargs
         plusargs += " ".join("%s" % x for x in options.plusargs)
 
     if(len(args) > 0):
@@ -123,19 +121,11 @@ if __name__ == '__main__':
                     print "I found the following config files"
                     for i in info.error_message:
                         print " %s" % i
-#                    except:
-#                        pass
-#                except:
-#                    pass
                 finally:
                     score_board.addVariant(sim_cfg.variant)
 
             for sim_cfg in cfg_list:
-#                print sim_cfg
                 try:
-#                    print "Adding variant: %s" % sim_cfg.variant
-#                    score_board.addVariant(sim_cfg.variant)
-
                     if(not sim_cfg.invalid):
                         sim_cfg.genAutoTest(options.dry_run, True)
                         sim_cfg['defines'] += " " + defines
@@ -152,14 +142,9 @@ if __name__ == '__main__':
                         if(not options.compile_only):
                             try:
                                 stdio = sim.run()
-#                                print "RUN"
                             except builders.Exceptions.ProcessFail, info:
-#                                print "PROCESS FAIL"
                                 sim_cfg.not_run = True
                                 sim_cfg.error_message = info.error_message
-#                                print info.error_message
-#                                print info.log_file
-#                                pass
                         else:
                             print "--Compile only--"
                             sim.run(0)
@@ -187,7 +172,6 @@ if __name__ == '__main__':
                 for cfg in cfg_list:
                     try:
                         if(cfg.not_run is True):
-#                            print score_board.scores[cfg.variant]
                             score_board.scores[cfg.variant].incNotRun(cfg.error_message)
                         else:
                             score_board.scoreTestFromCfg(cfg)
@@ -197,28 +181,16 @@ if __name__ == '__main__':
                             print info.long_message
                         else:
                             print "(use -v option to print verbose error messages)"
-#                    except:
-#                        pass
-#                        raise
 
                 # Determine longest string for pretty printing the results
                 longest = 0
-#                for variant in score_board.variant_list:
-#                    score = score_board.scores[variant]
                 longest_str = score_board.longestString()
-#                print longest_str
-#                    if(longest_str > longest):
-#                        longest = longest_str
 
                 # Pretty print the test results
-#                print "TEST SUMMARY"
-#                print "-" * (79)
                 print ""
                 error_count = 0
                 warning_count = 0
                 incomplete_count = 0
-#                for variant in score_board.variant_list:
-#                    score = score_board.scores[variant]
                 error_count = score_board['error_count']
                 warning_count = score_board['warning_count']
                 incomplete_count = score_board['incomplete_count']

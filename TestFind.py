@@ -33,7 +33,6 @@ class TestFind():
                     else:
                         cfg_file = "%s%s%s" % (directory, os.sep, f)
                         self.cfg_files.append(cfg_file)
-#                        self.read(self.cfg_file)
         if(len(self.cfg_files) == 0):
             raise Exceptions.NoConfigFileFound('getCfgs', 'There were no config files found in the current path.', None)
         print "Found the following config files"

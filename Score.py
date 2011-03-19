@@ -59,7 +59,6 @@ class Score():
             self['parent'].incInvalid()
 
     def incIncomplete(self, error_message=None):
-#        print self.data['error_message']
         if(error_message is not None):
             self.data['error_message'] = error_message
         self['pass'] = False
@@ -69,7 +68,6 @@ class Score():
             self['parent'].incIncomplete()
 
     def incNotRun(self, error_message=None):
-#        print self.data['error_message']
         if(error_message is not None):
             self.data['error_message'] = error_message
         self['pass'] = False
@@ -85,13 +83,12 @@ class Score():
         if(self['parent'] is not None):
             self['parent'].incWarning()
 
-    def increment(self):
-        self['score'] += 1
-        if(self['parent'] is not None):
-            self['parent'].increment()
-
+#    def increment(self):
+#        self['score'] += 1
+#        if(self['parent'] is not None):
+#            self['parent'].increment()
+#
     def add(self, name):
-#        print "NAME:", name
         score = Score(name, self)
         self.data['kids'].append(score)
         self['total_nodes'] += 1
@@ -177,8 +174,6 @@ class Score():
 
     def printTally(self):
         str = ""
-#        sys.stdout.write("\n")
-#        str += "\n"
         variants_failed = 0.
         tests_failed = 0.
         tasks_failed = 0.
@@ -233,7 +228,6 @@ class Score():
             tasks_percent_passed = 0
         tasks_percent_failed = 100. - tasks_percent_passed
 
-#                print "Total Scores  : %d" % total_scores
         str+= "Passed      %d/%d (%.1f%%)\n" % (total_passed, total_scores, (total_passed/total_scores)*100.)
         str+= "Failed      %d/%d (%.1f%%)\n" % (total_failures, total_scores, (total_failures/total_scores)*100.)
         str+= "Invalid     %d\n" % (self['invalid_count'])

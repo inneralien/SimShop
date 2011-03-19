@@ -5,76 +5,11 @@
 # http://rtlcores.com
 # See LICENSE.txt
 
-import sys, os
+import os
 import re
 import Exceptions
 import help
 from Score import Score
-
-"""
-Takes a list of variants and tests and generates a scoreboard based off
-of regular expression matches.
-
-Possible ASCII outputs:
-+------------------------------------------------------------+
-| TEST SUMMARY:                                              |
-+----------------------------+-----------+----------+--------+
-| Test                       | PASS/FAIL | WARNINGS | ERRORS |
-+----------------------------+-----------+----------+--------+
-| Deserializer/              |   PASS    |   0      |   0    |
-|     stop_errors            |   PASS    |   0      |   0    |
-|     start_errors           |   PASS    |   0      |   0    |
-|     parity_errors          |   FAIL    |   2      |   7    |
-|     start_errors           |   PASS    |   0      |   0    |
-|------------------------------------------------------------|
-|                            |    4/1    |   2      |   7    |
-|------------------------------------------------------------|
-| Serializer/                |           |          |        |
-|     serial_8N1             |   PASS    |   0      |   0    |
-|     serial_8N2             |   PASS    |   0      |   0    |
-|     serial_8P1             |   PASS    |   0      |   0    |
-|     serial_8P2             |   PASS    |   0      |   0    |
-|------------------------------------------------------------|
-|                            |    4/0    |   0      |   0    |
-+============================+===========+==========+========+
-| All Tests                  | PASS/FAIL | WARNINGS | ERRORS |
-|                            |    8/1    |   2      |   7    |
-|------------------------------------------------------------|
-
-+-----------------------------------------+
-| TEST SUMMARY:                           |
-+--------------------+-----------+--------+
-| Test               | PASS/FAIL | ERRORS |
-+--------------------+-----------+--------+
-| test_stop_errors   |   PASS    |   0    |
-| test_start_errors  |   PASS    |   0    |
-| test_parity_errors |   FAIL    |   7    |
-| test_start_errors  |   PASS    |   0    |
-+--------------------+-----------+--------+
-
-TEST SUMMARY:                     PASS/FAIL
--------------------------------------------
-deserializer                         FAIL
-`-- regression                       FAIL
-    |-- test_task.test_stop_errors   PASS
-    |-- test_task.test_start_errors  PASS
-    |-- test_task.test_parity_errors FAIL
-    `-- test_task.test_start_errors  PASS
-
-serializer                           FAIL
-`-- regression                       FAIL
-    |-- test_task.serial_8N1         PASS
-    |-- test_task.serial_8N2         FAIL
-    |-- test_task.serial_8P1         FAIL
-    `-- test_task.serial_8P2         PASS
--------------------------------------------
-
-Total tests : 25
-----------------------
-      Pass : 15 (60%)
-      Fail : 5  (20%)
-Incomplete : 5  (20%)
-"""
 
 class ScoreBoard(Score):
     """
@@ -100,21 +35,16 @@ class ScoreBoard(Score):
         self.task_count = 0
 
     def addVariant(self, variant):
-#        print "Adding Variant:", variant
         if(variant not in self.variant_list):
             self.variant_list.append(variant)
-#            self.scores[variant] = Score(name=variant)
             self.scores[variant] = self.add(name=variant)
 
     def addTest(self, test, variant):
-#        print "Adding test %s to variant %s" % (test, variant)
         self.test_count += 1
         return self.scores[variant].add(name=test)
 
     def addTask(self, task, test):
         self.task_count += 1
-#        print "Adding task %s to test %s" % (task, test)
-#        print type(task), type(test)
         return test.add(name=task)
 
     def setTestBeginRegex(self, regex):
@@ -132,30 +62,14 @@ class ScoreBoard(Score):
     def scoreTestFromCfg(self, sim_cfg):
         variant = sim_cfg.variant
         test = sim_cfg.test_section
-#        if(variant in self.variant_list):
-#            pass
-##            print "FOUND %s" % variant
-#        else:
-#            self.variant_list.append(variant)
-#            self.scores[variant] = Score(name=variant)
 
             # Add a test to the variant
         if(len(self.scores) != 0):
-#            print "TEST", test
-#            print "Variant", variant
-#            if(sim_cfg.incomplete is True):
-#                print "INCOMPLETE"
-#                print "%r" % self
-#                self.incIncomplete(sim_cfg.error_message)
-#                return
-
             if(variant in self.scores):
                 test_score = self.addTest(test, variant)
-#                test_score = self.scores[variant].add(test)
             else:
                 self.incNotRun()
-#                return
-#                raise
+
             # A log file contains 1 variant, 1 test and 0 or more tasks
             # If the sim_cfg is marked as invalid then the test should be
             # scored as such and there's no need to parse the log file
@@ -185,8 +99,6 @@ class ScoreBoard(Score):
             logfile = sim_cfg.build_path + "/" + sim_cfg['logfile']
         except:
             pass
-#            logfile = ''
-#            score.incIncomplete()
         got_test_begin = False
         task_list = []
 
@@ -200,7 +112,6 @@ class ScoreBoard(Score):
                 # Search for know Task names
             for task in sim_cfg.task_list:
                 if(True):
-#                if(task not in task_list):
                     # Strip off any parenthesis from tasks that have arguments
                     task = re.sub(r'\(.*', '', task)
                     r = re.compile(r'%s' % task)
@@ -208,7 +119,6 @@ class ScoreBoard(Score):
                     if(s is not None):
                         task_name = s.group()
                         task_list.append(task_name)
-#                        test = test_score.add(task_name)
                         test = self.addTask(task_name, test_score)
                             # score is the current child in the Score hierarchy
                         score = test
@@ -231,7 +141,6 @@ class ScoreBoard(Score):
                 s = self.testBeginRegex.search(i)
                 if(s is not None):
                     if(got_test_begin is True):
-#                        score.incIncomplete()
                         prev_score.incIncomplete()
                     else:
                         got_test_begin = True
@@ -251,76 +160,6 @@ class ScoreBoard(Score):
             # as an incomplete. Right?
         if(got_test_begin is True):
             score.incIncomplete()
-
-    def printReport(self):
-        """
-        Print an ascii report to stdout.
-        """
-        print "++ Printing Report ++"
-        for v in self.variant_list:
-            print self.scores[v].name, self.scores[v].error_count
-            for test in self.scores[v].children:
-                print "  ", test.name, test.error_count, test.incomplete_count
-                for task in test.children:
-                    print "    ", task.name, task.error_count, task.incomplete_count
-
-    def printASCIIReport(self):
-        """
-        Prints a pretty ASCII table representation of the simulation
-        results.
-        """
-            # Determine the longest string name
-        longest = 0
-        for v in self.variant_list:
-            if(len(self.scores[v].name) > longest):
-                longest = len(self.scores[v].name)
-            for test in self.scores[v].children:
-                if(len(test.name) > longest):
-                    longest = len(test.name)
-                for task in test.children:
-                    if(len(task.name) > longest):
-                        longest = len(task.name)
-        longest = longest + 2
-
-            # Format and print the output
-        print ""
-        print "Test Summary".ljust(longest+9) +\
-              "Errors".rjust(6) +\
-              "Incomplete".rjust(11)
-        print "+-----------------------------------------------------------------------------+"
-        for v in self.variant_list:
-            passed = "FAIL"
-
-            if(self.scores[v].error_count == 0 and self.scores[v].incomplete_count == 0):
-                passed = "PASS"
-            print "%s%s%s%s" %  ( self.scores[v].name.ljust(longest+4),
-                                  passed,
-                                  str(self.scores[v].error_count).rjust(5),
-#                                  str(self.scores[v].warning_count).rjust(5),
-                                  str(self.scores[v].incomplete_count).rjust(5)
-                              )
-            for test in self.scores[v].children:
-                if(test.error_count == 0 and test.incomplete_count == 0):
-                    passed = "PASS"
-                else:
-                    passed = "FAIL"
-                print "  %s%s%s%s" % (test.name.ljust(longest+2),
-                                      passed,
-                                      str(test.error_count).rjust(5),
-#                                      str(test.warning_count).rjust(5),
-                                      str(test.incomplete_count).rjust(5)
-                                     )
-                for task in test.children:
-                    if(task.error_count == 0 and task.incomplete_count == 0):
-                        passed = "PASS"
-                    else:
-                        passed = "FAIL"
-                    print "    %s%s%s%s" % ( task.name.ljust(longest),
-                                             passed,
-                                             str(task.error_count).rjust(5),
-#                                             str(task.warning_count).rjust(5),
-                                             str(task.incomplete_count).rjust(5)
-                                            )
 
     def printHTMLReport(self):
         """
