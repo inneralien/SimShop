@@ -21,12 +21,7 @@ class SimCfg(SafeConfigParser):
     """
     def __init__(self):
         self.defaults = {
-                'TIMESCALE':        '1ns / 10ps',
-                'TIMEOUT':          '40000000',
                 'BUILDDIR':         'simbuild',
-                'AUTO_TEST_FILE':   'auto_test.v',
-                'DUMPFILE':         'out.vcd',
-                'DUMPVARS':         '(0,tb)',
                 'SIMFILE':          'sim',
                 'LOGFILE':          'sim.log',
                 'BUILDFILE':        'build.log',
@@ -38,6 +33,15 @@ class SimCfg(SafeConfigParser):
                 'TEST_FILES':       '',
                 'TEST_INC_DIRS':    '',
                 'TASKS':            '',
+                    # Auto Test Variables
+                'AUTO_TEST_FILE':   'auto_test.v',
+                'DUMPFILE':         'out.vcd',
+                'DUMPVARS':         '(0,tb)',
+                'TIMESCALE':        '1ns / 10ps',
+                'TIMEOUT':          '40000000',
+                'RESET':            '',
+                'FINISH':           '$finish',
+                'TIMEOUT_ERROR':    '',
                     # Simulator Specific Options
                 'COMPCMD':          'iverilog',
                 'SIMCMD':           'vvp',
@@ -198,6 +202,21 @@ class SimCfg(SafeConfigParser):
         self.dumpfile = self.build_path + '/' + self['DUMPFILE']
         self.outfile = self.build_path + '/' + self['SIMFILE']
 
+        if(self['RESET'] != ''):
+            reset = self['RESET'] + ';'
+        else:
+            reset = ''
+
+        if(self['FINISH'] != ''):
+            finish = self['FINISH'] + ';'
+        else:
+            finish = ''
+
+        if(self['TIMEOUT_ERROR'] != ''):
+            timeout_error = self['TIMEOUT_ERROR'] + ';'
+        else:
+            timeout_error = ''
+
             # Remove existing and/or create new build directory
         if(dry_run is True):
             pass
@@ -211,11 +230,14 @@ class SimCfg(SafeConfigParser):
             distutils.dir_util.mkpath(self.build_path)
             s = string.Template(test_template)
             f = open(self.auto_test, 'w')
-            f.write(s.safe_substitute( {'timescale': self['timescale'],
-                                        'timeout': self['timeout'],
+            f.write(s.safe_substitute( {'timescale': self['TIMESCALE'],
+                                        'timeout': self['TIMEOUT'],
                                         'tasks': self.tasks,
                                         'dumpfile': self.dumpfile,
-                                        'dumpvars': dumpvars
+                                        'dumpvars': dumpvars,
+                                        'reset': reset,
+                                        'finish': finish,
+                                        'timeout_error': timeout_error,
                                         })
             )
             f.close()

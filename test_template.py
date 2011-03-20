@@ -21,9 +21,9 @@ module auto_test();
 
         $$display("");
         #0;
-        tb.chip_reset(10);
+        $reset
         runsim;
-        `simulation_finish;
+        $finish
     end
 
     task runsim;
@@ -36,7 +36,7 @@ module auto_test();
         end
         begin
             #$timeout;   // Timeout
-            `report_error("Test Timeout Error");
+            $timeout_error
             $$display("<%0t> Timeout.", $$time);
             disable auto_tests_run;
             disable auto_tests;
