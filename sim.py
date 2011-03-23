@@ -55,6 +55,10 @@ if __name__ == '__main__':
                         default=[],
                         help="""Pass plusargs to the simulation.
                         sim -pDUMPON <testname>""")
+    parser.add_option("-o", "--output-file",
+                        dest="output_file",
+                        metavar='FILE',
+                        help="""store the scoreboard report to FILE""")
 #    parser.add_option("--clean",
 #                        action="store_true",
 #                        dest="clean",
@@ -195,10 +199,23 @@ if __name__ == '__main__':
                 warning_count = score_board['warning_count']
                 incomplete_count = score_board['incomplete_count']
                 total_nodes = score_board['total_nodes']
-                tree = score_board.printTree(max_level=score_board.max_level, pad=longest_str+4)
-                tally = score_board.printTally()
-                print tree
-                print tally
+                if(options.output_file is not None):
+                    tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4, print_color=False)
+                else:
+                    tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4)
+                tally = score_board.asciiTally()
+
+                if(options.output_file is not None):
+                    f = open(options.output_file, 'w')
+                    f.write(tree)
+                    f.write(tally)
+                    f.close()
+                else:
+                    sys.stdout.write(tree)
+                    sys.stdout.write("\n")
+                    sys.stdout.write(tally)
+
+            score_board.writePickleFile()
 
             os._exit(1)
     else:

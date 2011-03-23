@@ -5,7 +5,7 @@
 # http://rtlcores.com
 # See LICENSE.txt
 
-import os
+import sys, os
 import re
 import Exceptions
 import help
@@ -184,146 +184,204 @@ class ScoreBoard(Score):
                 for task in test.children:
                     print "    ", task.name, task.error_count, task.incomplete_count
 
-    def getLongestString(self, data=None, last=False, max_level=None):
-        if(max_level is not None):
-            self.max_level = max_level
-        elif(self.level > self.max_level):
-            self.max_level = self.level
+    def writePickleFile(self, data=None, max_level=None):
+        """
+        Writes a pickled version of the ScoreBoard datastructure so that
+        it can be read later. This is where a database would probably make
+        a more formidable choice.
+        """
+        import pickle
+        if(data is None):
+            data = self.data
+        output = open('out.pkl', 'wb')
+        pickle.dump(data, output, -1)
+        output.close()
 
-        if(len(data['name']) > self.longest_string):
-            self.longest_string = len(data['name'])
+    def asciiTree(self, data=None, last=False, max_level=None, pad=0, print_color=True):
+        if(data is None):
+            data = self.data
 
-        for i in range(len(data['kids'])):
-            last = (i == len(data['kids']) - 1)
-            self.level += 1
-            self.getLongestString(data['kids'][i], last, max_level=max_level)
-            self.level -= 1
+        pad_length = len(data['name'])
 
-    def traverse(self, data):
+        if(self.level not in self.lasts):
+            self.lasts.append(self.level)
+
+        # Lay out the tree pipes if necessary
+        for i in range(1, self.level):
+            if(i in self.lasts):
+                self.tree_str += "|   "# % (lasts[i], i))
+            else:
+                self.tree_str += "    "# % (lasts[i], i))
+            pad_length += 4
+
+        # If the item is the tail of the branch it gets a ` instead of a |
+        if(self.level != 0):
+            if(last):
+                self.tree_str += '`'
+            else:
+                self.tree_str += '|'
+            pad_length += 1
+
+        # All levels but the top get --
+        if(self.level != 0):
+            self.tree_str += '-- %s ' % (data['name'])
+            pad_length += 4
+        else:
+            self.tree_str += '%s ' % (data['name'])
+            pad_length += 1
+
+        pad_length = pad - pad_length + 10
+        if(data['status'] == 'PASS'):
+            padding = ' ' + ' ' * pad_length
+        else:
+            padding = '<' + '-' * pad_length
+
+        if(len(data['kids']) == 0):
+            if(print_color is True):
+                pass_msg = '%s [%s]' % (padding, colorize(data['status']))
+            else:
+                pass_msg = '%s [%s]' % (padding, data['status'])
+        else:
+            pass_msg = ''
+
+        self.tree_str += "%s\n" % pass_msg
+
+        # Remove branches that have ended
+        if(self.level in self.lasts):
+            if(last):
+                self.lasts.remove(self.level)
+
         # Recurse through the children
-        for i in range(len(data['kids'])):
-            last = (i == len(data['kids']) - 1)
-            self.level += 1
-            self.traverse(data['kids'][i], last)
-            self.level -= 1
+        if((max_level is None) or (self.level < max_level)):
+            for i in range(len(data['kids'])):
+                last = (i == len(data['kids']) - 1)
+                self.level += 1
+                self.asciiTree(data['kids'][i], last, max_level=max_level, pad=pad, print_color=print_color)
+                self.level -= 1
 
+        return self.tree_str
+
+    def asciiTally(self, data=None):
+        """
+        Prints out a table of the following information about a simulation:
+            * Passed     - total and percentage
+            * Failed     - total and percentage
+            * Invalid    - total
+            * Incomplete - total
+            * Not Run    - total
+            * Errors     - total
+            * Warnings   - total
+
+        """
+        if(data is None):
+            data = self.data
+        str = ""
+
+        variant_count = 0
+        test_count = 0
+        task_count = 0
+
+        total_scores = 0.
+        total_failures = 0.
+        total_passed = 0.
+
+        variants_failed = 0.
+        tests_failed = 0.
+        tasks_failed = 0.
+        # Variants
+        for v in data['kids']:
+            total_scores += 1
+            variant_count += 1
+            if(not v['pass']):
+                total_failures += 1
+                variants_failed += 1
+            else:
+                total_passed += 1
+            # Tests
+            for t in v['kids']:
+                total_scores += 1
+                test_count += 1
+                if(not t['pass']):
+                    total_failures += 1
+                    tests_failed += 1
+                else:
+                    total_passed += 1
+                # Tasks
+                for task in t['kids']:
+                    total_scores += 1
+                    task_count += 1
+                    if(not task['pass']):
+                        total_failures += 1
+                        tasks_failed += 1
+                    else:
+                        total_passed += 1
+
+        str+= "Passed      %d/%d (%.1f%%)\n" % (total_passed, total_scores, (total_passed/total_scores)*100.)
+        str+= "Failed      %d/%d (%.1f%%)\n" % (total_failures, total_scores, (total_failures/total_scores)*100.)
+        str+= "Invalid     %d\n" % (self['invalid_count'])
+        str+= "Incomplete  %d\n" % (self['incomplete_count'])
+        str+= "Not Run     %d\n" % (self['not_run_count'])
+        str+= "Errors      %d\n" % (self['error_count'])
+        str+= "Warnings    %d\n" % (self['warning_count'])
+
+        return str
+
+    def longestString(self, data=None, max_level=None):
+        """
+        Recurses throught the children of 'data' and determines the longest
+        string in the bunch. This is use for formatting the tree view status
+        messages.
+        """
+        if(data is None):
+            data = self.data
+        string_length = len(data['name'])
+        # Recurse through the children
+        if((max_level is None) or (self.level < max_level)):
+            for i in range(len(data['kids'])):
+                self.level += 1
+                ret = self.longestString(data['kids'][i], max_level=max_level)
+                if(ret > string_length):
+                    string_length = ret
+                self.level -= 1
+        return string_length
+
+
+#TODO - Need to add colored output for Windows as well
+if(sys.platform == 'win32'):
+    colors = {  'FAIL'   : "",
+                'PASS'   : "",
+                'INCOMPLETE': "",
+                'INVALID': "",
+                'end'    : "",
+            }
+else:
+    colors = {  'FAIL'   : "\033[91m",
+                'PASS'   : "\033[92m",
+                'INCOMPLETE': "\033[95m",
+                'INVALID': "\033[95m",
+                'NOT RUN': "\033[95m",
+                'end'    : "\033[0m",
+            }
+
+def colorize(text, type=None):
+    str = ""
+    if(type is None):
+        str += colors[text] + text + colors['end']
+    else:
+        str += colors[type] + text + colors['end']
+    return str
 
 if __name__ == '__main__':
-    sb = ScoreBoard('Simulation')
-    sb.incError()
-    a = sb.add('Deserializer')
+    import sys, pickle
+    sb = ScoreBoard()
 
-#    a = Score('Deserializer')
-    r = a.add('regression')
-    r.add('task0')
-    r.add('task1')
-    t = r.add('task2')
-    t.incError()
-    r.add('task3')
-#    test = r.add('start_error')
-#    test = r.add('start_error')
-#    test = r.add('start_error')
-    r.incIncomplete()
-#    task = test.add('test_start_error')
-#    test = r.add('stop_error')
-#    task = test.add('test_stop_error')
-#    test = r.add('bobs_error')
+    pkl_file = open('out.pkl', 'rb')
+    data = pickle.load(pkl_file)
+    pkl_file.close()
 
-    a = sb.add('Serializer')
-    r = a.add('regression')
-#    errors.increment()
-#    errors.increment()
-#    warnings = a.add('warnings')
-#    warnings.increment()
-#    print errors['score']
-#    print warnings['score']
-    # Determine longest string for pretty printing the results
-
-    longest = 0
-#    for variant in sb.variant_list:
-#        score = sb.scores[variant]
-#        longest_str = score.longestString(score)
-#        if(longest_str > longest):
-#            longest = longest_str
-
-    print longest
-    sb.printTree(max_level=sb.max_level, pad=40)
-
-#    d = c.add('test0')
-#    d.add('task0')
-#    e = d.add('task1')
-#    e.increment()
-#    d = c.add('test1')
-##    d.increment()
-#    e = d.add('task0')
-#    e.increment()
-#    e = d.add('task1')
-#    e.increment()
-#    e.increment()
-#    d = c.add('test2')
-#    d.add('task0')
-#    d.add('task1')
-#    sa = a.add('simulate')
-#    sb = sa.add('test0')
-#    sc = sb.add('task0')
-#    sc = sb.add('task1')
-#    sc.increment()
-#    sa.add('test1')
-#    t = sa.add('test2')
-#    t.increment()
-#
-#    sa.traverse()
-#    sa = a.add('sub')
-#    sa = a.add('sub')
-#    sb = sa.add('sub_sub')
-#    sb = sa.add('sub_sub')
-#    sb.add('sub_sub_sub')
-#    sb.add('sub_sub_sub')
-#    sb = sa.add('sub_sub')
-#    a.add('sub')
-
-#    traverse.lasts = []
-#    traverse.level = 0
-#    traverse(a)
-#    a.traverse(max_level=2)
-#    a.traverse()
-
-#    targets = ['test0', 'test1', 'test2']
-#    for target in targets:
-#        print "Compiling %s" % target
-#        print "Simulating %s" % target
-#        compile_score       = Score(name = target)
-#        sim_error_score     = Score(name = target)
-#        task_score          = sim_error_score.add('task0')
-
-#    variants = {}
-#    variants['v0'] = Score(name='v0')
-#
-#    # Add a new test to the variant
-#    test = variants['v0'].add('test0')
-#
-#    # Add a new task to the test
-#    task = test.add('task0')
-#    task.incError()
-#    # Add another new task to the test
-#    task = test.add('task1')
-#    task.incError()
-#
-#    # Add a new test to the variant
-#    test = variants['v0'].add('test1')
-#    # Add a new task to the test
-#    task = test.add('taskA')
-#    task.incError()
-#    # Add another new task to the test
-#    task = test.add('taskB')
-#    task.incError()
-#
-#    # Add a new test to the variant with no tasks
-#    test = variants['v0'].add('test1')
-#    test.incError()
-#
-#    print variants['v0'].name, variants['v0'].error_count
-#    for child in variants['v0'].children:
-#        print "  ", child.name, child.error_count
-#        for c in child.children:
-#            print "    ", c.name, c.error_count
+    longest = sb.longestString(data)
+    tree = sb.asciiTree(data, pad=longest+4)
+    tally = sb.asciiTally(data)
+    sys.stdout.write(tree)
+    sys.stdout.write("\n")
+    sys.stdout.write(tally)
