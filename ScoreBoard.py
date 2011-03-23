@@ -236,7 +236,7 @@ class ScoreBoard(Score):
         else:
             padding = '<' + '-' * pad_length
 
-        if(len(data['kids']) == 0):
+        if((len(data['kids']) == 0) or (self.level == max_level)):
             if(print_color is True):
                 pass_msg = '%s [%s]' % (padding, colorize(data['status']))
             else:
@@ -380,7 +380,7 @@ if __name__ == '__main__':
     pkl_file.close()
 
     longest = sb.longestString(data)
-    tree = sb.asciiTree(data, pad=longest+4)
+    tree = sb.asciiTree(data, pad=longest+4, max_level=3)
     tally = sb.asciiTally(data)
     sys.stdout.write(tree)
     sys.stdout.write("\n")
