@@ -58,7 +58,7 @@ if __name__ == '__main__':
     parser.add_option("-o", "--output-file",
                         dest="output_file",
                         metavar='FILE',
-                        help="""store the scoreboard report to FILE""")
+                        help="""store the scoreboard report to pickle FILE""")
 #    parser.add_option("--clean",
 #                        action="store_true",
 #                        dest="clean",
@@ -87,7 +87,8 @@ if __name__ == '__main__':
                 t.listTests()
         except Exceptions.TestFindError, info:
             print info.error_message
-        sys.exit(1)
+            sys.exit(1)
+        sys.exit(0)
 
     defines = ""
     plusargs = ""
@@ -158,14 +159,16 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt:
             print "KeyboardInterrupt Caught... terminating simulation"
+            sys.exit(1)
         except SystemExit:
-            pass
+            sys.exit(1)
         except Exception:
             tb = sys.exc_info()[2]
             stack = []
             while tb:
                 stack.append(tb.tb_frame)
                 tb = tb.tb_next
+            sys.exit(1)
 #TODO - Add a logger and push this traceback to a file
             traceback.print_exc()
         finally:
@@ -199,24 +202,16 @@ if __name__ == '__main__':
                 warning_count = score_board['warning_count']
                 incomplete_count = score_board['incomplete_count']
                 total_nodes = score_board['total_nodes']
-                if(options.output_file is not None):
-                    tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4, print_color=False)
-                else:
-                    tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4)
+                tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4, print_html=False)
                 tally = score_board.asciiTally()
 
+                print type(tree)
                 if(options.output_file is not None):
-                    f = open(options.output_file, 'w')
-                    f.write(tree)
-                    f.write(tally)
-                    f.close()
-                else:
-                    sys.stdout.write(tree)
-                    sys.stdout.write("\n")
-                    sys.stdout.write(tally)
+                    score_board.writePickleFile(options.output_file)
+                sys.stdout.write(tree)
+                sys.stdout.write("\n")
+                sys.stdout.write(tally)
 
-            score_board.writePickleFile()
 
-            os._exit(1)
     else:
         parser.print_help()

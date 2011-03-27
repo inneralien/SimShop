@@ -26,6 +26,8 @@ class Score():
                         'total_nodes'       : 0,
                         'status'            : 'PASS', # PASS,FAIL,INCOMPLETE,INVALID
                         'error_message'     : None,
+                        'start_time'        : None,
+                        'end_time'          : None,
                     }
         self.data['string_len'] = len(name) + 4
         self.tree_str = ""

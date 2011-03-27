@@ -184,7 +184,7 @@ class ScoreBoard(Score):
                 for task in test.children:
                     print "    ", task.name, task.error_count, task.incomplete_count
 
-    def writePickleFile(self, data=None, max_level=None):
+    def writePickleFile(self, filename, data=None, max_level=None):
         """
         Writes a pickled version of the ScoreBoard datastructure so that
         it can be read later. This is where a database would probably make
@@ -193,11 +193,11 @@ class ScoreBoard(Score):
         import pickle
         if(data is None):
             data = self.data
-        output = open('out.pkl', 'wb')
+        output = open(filename, 'wb')
         pickle.dump(data, output, -1)
         output.close()
 
-    def asciiTree(self, data=None, last=False, max_level=None, pad=0, print_color=True):
+    def asciiTree(self, data=None, last=False, max_level=None, pad=0, print_color=True, print_html=False):
         if(data is None):
             data = self.data
 
@@ -234,10 +234,15 @@ class ScoreBoard(Score):
         if(data['status'] == 'PASS'):
             padding = ' ' + ' ' * pad_length
         else:
-            padding = '<' + '-' * pad_length
+            if(print_html):
+                padding = '&lt;' + '-' * pad_length
+            else:
+                padding = '<' + '-' * pad_length
 
         if((len(data['kids']) == 0) or (self.level == max_level)):
-            if(print_color is True):
+            if(print_html is True):
+                pass_msg = '%s [%s]' % (padding, colorize(data['status'], colors='html'))
+            elif(print_color is True):
                 pass_msg = '%s [%s]' % (padding, colorize(data['status']))
             else:
                 pass_msg = '%s [%s]' % (padding, data['status'])
@@ -256,7 +261,7 @@ class ScoreBoard(Score):
             for i in range(len(data['kids'])):
                 last = (i == len(data['kids']) - 1)
                 self.level += 1
-                self.asciiTree(data['kids'][i], last, max_level=max_level, pad=pad, print_color=print_color)
+                self.asciiTree(data['kids'][i], last, max_level=max_level, pad=pad, print_color=print_color, print_html=print_html)
                 self.level -= 1
 
         return self.tree_str
@@ -318,11 +323,11 @@ class ScoreBoard(Score):
 
         str+= "Passed      %d/%d (%.1f%%)\n" % (total_passed, total_scores, (total_passed/total_scores)*100.)
         str+= "Failed      %d/%d (%.1f%%)\n" % (total_failures, total_scores, (total_failures/total_scores)*100.)
-        str+= "Invalid     %d\n" % (self['invalid_count'])
-        str+= "Incomplete  %d\n" % (self['incomplete_count'])
-        str+= "Not Run     %d\n" % (self['not_run_count'])
-        str+= "Errors      %d\n" % (self['error_count'])
-        str+= "Warnings    %d\n" % (self['warning_count'])
+        str+= "Invalid     %d\n" % (data['invalid_count'])
+        str+= "Incomplete  %d\n" % (data['incomplete_count'])
+        str+= "Not Run     %d\n" % (data['not_run_count'])
+        str+= "Errors      %d\n" % (data['error_count'])
+        str+= "Warnings    %d\n" % (data['warning_count'])
 
         return str
 
@@ -348,22 +353,33 @@ class ScoreBoard(Score):
 
 #TODO - Need to add colored output for Windows as well
 if(sys.platform == 'win32'):
-    colors = {  'FAIL'   : "",
-                'PASS'   : "",
-                'INCOMPLETE': "",
-                'INVALID': "",
-                'end'    : "",
-            }
+    ascii_colors = {'FAIL'   : "",
+                    'PASS'   : "",
+                    'INCOMPLETE': "",
+                    'INVALID': "",
+                    'end'    : "",
+    }
 else:
-    colors = {  'FAIL'   : "\033[91m",
-                'PASS'   : "\033[92m",
-                'INCOMPLETE': "\033[95m",
-                'INVALID': "\033[95m",
-                'NOT RUN': "\033[95m",
-                'end'    : "\033[0m",
-            }
+    ascii_colors = {'FAIL'   : "\033[91m",
+                    'PASS'   : "\033[92m",
+                    'INCOMPLETE': "\033[95m",
+                    'INVALID': "\033[95m",
+                    'NOT RUN': "\033[95m",
+                    'end'    : "\033[0m",
+    }
+html_colors = { 'FAIL'      : '<span class="status fail">',
+                'PASS'      : '<span class="status pass">',
+                'INCOMPLETE': '<span class="status incomplete">',
+                'INVALID'   : '<span class="status invalid">',
+                'NOT RUN'   : '<span class="status not_run">',
+                'end'       : '</span>',
+}
 
-def colorize(text, type=None):
+def colorize(text, type=None, colors='ascii'):
+    if(colors == 'ascii'):
+        colors = ascii_colors
+    elif(colors == 'html'):
+        colors = html_colors
     str = ""
     if(type is None):
         str += colors[text] + text + colors['end']
@@ -375,12 +391,12 @@ if __name__ == '__main__':
     import sys, pickle
     sb = ScoreBoard()
 
-    pkl_file = open('out.pkl', 'rb')
+    pkl_file = open('score.pkl', 'rb')
     data = pickle.load(pkl_file)
     pkl_file.close()
 
     longest = sb.longestString(data)
-    tree = sb.asciiTree(data, pad=longest+4, max_level=3)
+    tree = sb.asciiTree(data, pad=longest+4, max_level=3, print_color=True, print_html=True)
     tally = sb.asciiTally(data)
     sys.stdout.write(tree)
     sys.stdout.write("\n")
