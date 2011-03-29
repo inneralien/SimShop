@@ -21,6 +21,19 @@ import TestFind
 __author__ = "Tim Weaver - RTLCores"
 __version__ = "v0.9"
 
+# Features to add
+#
+#   Email HTML results.
+#       --email
+#       --from=me@gmail.com
+#       --to=you@gmail.com
+#       --email-cfg email.cfg
+#           username=
+#           password=
+#           css_template=
+#           email_template= (HTML)
+#
+
 
 if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
@@ -205,7 +218,6 @@ if __name__ == '__main__':
                 tree = score_board.asciiTree(max_level=score_board.max_level, pad=longest_str+4, print_html=False)
                 tally = score_board.asciiTally()
 
-                print type(tree)
                 if(options.output_file is not None):
                     score_board.writePickleFile(options.output_file)
                 sys.stdout.write(tree)
