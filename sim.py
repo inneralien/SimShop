@@ -19,7 +19,7 @@ import SimCfg
 import TestFind
 
 __author__ = "Tim Weaver - RTLCores"
-__version__ = "v0.9"
+__version__ = "v0.10"
 
 # Features to add
 #
