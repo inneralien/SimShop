@@ -8,6 +8,7 @@
 import sys, os
 import re
 import Exceptions
+import pickle
 import help
 from Score import Score
 
@@ -190,14 +191,20 @@ class ScoreBoard(Score):
         it can be read later. This is where a database would probably make
         a more formidable choice.
         """
-        import pickle
         if(data is None):
             data = self.data
         output = open(filename, 'wb')
         pickle.dump(data, output, -1)
         output.close()
 
+    def loadPickleFile(self, filename):
+        pkl_file = open(filename, 'rb')
+        self.data = pickle.load(pkl_file)
+        pkl_file.close()
+
     def asciiTree(self, data=None, last=False, max_level=None, pad=0, print_color=True, print_html=False):
+        if(self.level == 0):
+            self.tree_str = ''
         if(data is None):
             data = self.data
 

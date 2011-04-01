@@ -72,6 +72,15 @@ if __name__ == '__main__':
                         dest="output_file",
                         metavar='FILE',
                         help="""store the scoreboard report to pickle FILE""")
+#    parser.add_option("--config-file",
+#                        dest="config_file",
+#                        metavar='FILE',
+#                        help="""parse the configuration file FILE""")
+    parser.add_option("--email",
+                        action="store_true",
+                        dest='send_email',
+                        default=False,
+                        help="""email the results using settings from a config file""")
 #    parser.add_option("--clean",
 #                        action="store_true",
 #                        dest="clean",
@@ -223,6 +232,14 @@ if __name__ == '__main__':
                 sys.stdout.write(tree)
                 sys.stdout.write("\n")
                 sys.stdout.write(tally)
+
+                if(options.send_email):
+                    import SimShopCfg
+                    import EmailScoreBoard
+                    ssc = SimShopCfg.SimShopCfg()
+                    esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
+                    esb.send()
+
 
 
     else:

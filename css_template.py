@@ -24,4 +24,8 @@ body {
 .not_run {
     color:#bb0000;
 }
+
+#content {
+
+}
 """

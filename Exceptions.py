@@ -50,3 +50,23 @@ class InvalidTest(SimCfgError):
 class InvalidPath(SimCfgError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
+
+#==============================================================================
+# SimShopCfg Exceptions
+#==============================================================================
+class SimShopCfgError(BaseError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+class InvalidConfigfile(SimShopCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
+#==============================================================================
+# EmailScoreBoard Exceptions
+#==============================================================================
+class EmailError(BaseError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+class MissingSMTPServerError(EmailError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
