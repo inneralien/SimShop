@@ -302,22 +302,28 @@ class ScoreBoard(Score):
         tasks_failed = 0.
         # Variants
         for v in data['kids']:
-            total_scores += 1
+            if(len(v['kids']) == 0):
+                total_scores += 1
             variant_count += 1
             if(not v['pass']):
-                total_failures += 1
+                if(len(v['kids']) == 0):
+                    total_failures += 1
                 variants_failed += 1
             else:
-                total_passed += 1
+                if(len(v['kids']) == 0):
+                    total_passed += 1
             # Tests
             for t in v['kids']:
-                total_scores += 1
+                if(len(t['kids']) == 0):
+                    total_scores += 1
                 test_count += 1
                 if(not t['pass']):
-                    total_failures += 1
+                    if(len(t['kids']) == 0):
+                        total_failures += 1
                     tests_failed += 1
                 else:
-                    total_passed += 1
+                    if(len(t['kids']) == 0):
+                        total_passed += 1
                 # Tasks
                 for task in t['kids']:
                     total_scores += 1
@@ -403,7 +409,7 @@ if __name__ == '__main__':
     pkl_file.close()
 
     longest = sb.longestString(data)
-    tree = sb.asciiTree(data, pad=longest+4, max_level=3, print_color=True, print_html=True)
+    tree = sb.asciiTree(data, pad=longest+4, max_level=3, print_color=True, print_html=False)
     tally = sb.asciiTally(data)
     sys.stdout.write(tree)
     sys.stdout.write("\n")
