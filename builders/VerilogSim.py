@@ -3,9 +3,11 @@
 # See LICENSE.txt
 
 import os
+import time
 from CmdArgs import CmdArgs
 from CmdRun import CmdRun
 import Exceptions
+from HMS import HMS
 
 class VerilogSim():
     def __init__(self, cfg):
@@ -20,6 +22,7 @@ class VerilogSim():
         self.flags['plusargs']      = CmdArgs(cmd=lambda x: self._prepend('+', x))
 
         self.rel_proj_root = None
+        self.run_time = HMS(0)
 
         self.cmds = []
 
@@ -69,7 +72,11 @@ class VerilogSim():
         else:
             s = CmdRun(self.cmds)
         try:
+            start_time = time.time()
             s.run()
+            end_time = time.time()
+            self.run_time = HMS(end_time-start_time)
+#            self.run_time = self.seconds_to_hms(end_time-start_time)
         except Exceptions.ProcessFail, info:
 #            print dir(info)
 #            print "Error message", info.error_message
@@ -99,6 +106,13 @@ class VerilogSim():
 
     def buildCmd(self):
         print "VerilogSim: Overload this method to create a custom command"
+
+    def seconds_to_hms(self, total_seconds):
+        hours = total_seconds/3600.
+        minutes = hours*60.
+        minutes = minutes%60.
+        seconds = total_seconds%60.
+        return "%.2dh %.2dm %.2ds" % (hours, minutes, seconds)
 
 #class MissingRequiredFields(Exception):
 #    def __init__(self, cfg, field):

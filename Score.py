@@ -3,6 +3,7 @@
 # See LICENSE.txt
 
 import sys
+from builders.HMS import HMS
 
 class Score():
     """
@@ -26,8 +27,7 @@ class Score():
                         'total_nodes'       : 0,
                         'status'            : 'PASS', # PASS,FAIL,INCOMPLETE,INVALID
                         'error_message'     : None,
-                        'start_time'        : None,
-                        'end_time'          : None,
+                        'run_time'          : HMS(0),
                     }
         self.data['string_len'] = len(name) + 4
         self.tree_str = ""

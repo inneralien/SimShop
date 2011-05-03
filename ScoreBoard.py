@@ -68,6 +68,12 @@ class ScoreBoard(Score):
         if(len(self.scores) != 0):
             if(variant in self.scores):
                 test_score = self.addTest(test, variant)
+                    # Assign the run time for the tests It isn't currently
+                    # possible to assign a run time to tasks since they are all
+                    # combined into one test.
+                test_score['run_time'] = sim_cfg.run_time
+                self.scores[variant]['run_time'] += sim_cfg.run_time
+                self['run_time'] += sim_cfg.run_time
             else:
                 self.incNotRun()
 
@@ -254,7 +260,12 @@ class ScoreBoard(Score):
             else:
                 pass_msg = '%s [%s]' % (padding, data['status'])
         else:
-            pass_msg = ''
+            pass_msg = '%s' % (' ' * pad_length)
+#            pass_msg = '%s (%s)' % (' ' * pad_length, data['run_time'])
+
+#        if(self.level == 2 or self.level==0):
+        if(self.level == 2):
+            pass_msg += '  (%s)' % (data['run_time'])
 
         self.tree_str += "%s\n" % pass_msg
 
@@ -334,19 +345,20 @@ class ScoreBoard(Score):
                     else:
                         total_passed += 1
 
-        str+= "Passed      %d/%d (%.1f%%)\n" % (total_passed, total_scores, (total_passed/total_scores)*100.)
-        str+= "Failed      %d/%d (%.1f%%)\n" % (total_failures, total_scores, (total_failures/total_scores)*100.)
-        str+= "Invalid     %d\n" % (data['invalid_count'])
-        str+= "Incomplete  %d\n" % (data['incomplete_count'])
-        str+= "Not Run     %d\n" % (data['not_run_count'])
-        str+= "Errors      %d\n" % (data['error_count'])
-        str+= "Warnings    %d\n" % (data['warning_count'])
+        str += "Passed      %d/%d (%.1f%%)\n" % (total_passed, total_scores, (total_passed/total_scores)*100.)
+        str += "Failed      %d/%d (%.1f%%)\n" % (total_failures, total_scores, (total_failures/total_scores)*100.)
+        str += "Invalid     %d\n" % (data['invalid_count'])
+        str += "Incomplete  %d\n" % (data['incomplete_count'])
+        str += "Not Run     %d\n" % (data['not_run_count'])
+        str += "Errors      %d\n" % (data['error_count'])
+        str += "Warnings    %d\n" % (data['warning_count'])
+        str += "Run Time    %s\n" % (data['run_time'])
 
         return str
 
     def longestString(self, data=None, max_level=None):
         """
-        Recurses throught the children of 'data' and determines the longest
+        Recurses through the children of 'data' and determines the longest
         string in the bunch. This is use for formatting the tree view status
         messages.
         """

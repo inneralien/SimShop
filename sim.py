@@ -6,6 +6,7 @@
 # See LICENSE.txt
 
 import sys,os
+import time
 from optparse import OptionParser
 import re
 import traceback
@@ -169,9 +170,12 @@ if __name__ == '__main__':
                         if(not options.compile_only):
                             try:
                                 stdio = sim.run()
+                                sim_cfg.run_time = sim.run_time
                             except builders.Exceptions.ProcessFail, info:
                                 sim_cfg.not_run = True
                                 sim_cfg.error_message = info.error_message
+                            finally:
+                                pass
                         else:
                             print "--Compile only--"
                             sim.run(0)
@@ -184,15 +188,14 @@ if __name__ == '__main__':
             sys.exit(1)
         except SystemExit:
             sys.exit(1)
-        except Exception:
+        except Exception: # TODO - any exception caught here is lost, fix that
             tb = sys.exc_info()[2]
             stack = []
             while tb:
                 stack.append(tb.tb_frame)
                 tb = tb.tb_next
-            sys.exit(1)
-#TODO - Add a logger and push this traceback to a file
             traceback.print_exc()
+            sys.exit(1)
         finally:
             if(options.compile_only or options.dry_run):
                 pass

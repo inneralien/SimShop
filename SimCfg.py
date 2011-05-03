@@ -59,6 +59,7 @@ class SimCfg(SafeConfigParser):
         self.test_section = None
         self.rel_proj_root = None
         self.tasks = []
+        self.run_time = 0
 
     def __getitem__(self, key):
         try:
