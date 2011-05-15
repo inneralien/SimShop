@@ -11,18 +11,16 @@ from optparse import OptionParser
 import re
 import traceback
 
-import Exceptions
-import builders.Exceptions
-from builders.IcarusVerilog import IcarusVerilog
-
-import SimShopCfg
-import ScoreBoard
-import SimCfg
-import TestFind
+import simshop
+from simshop import SimShopCfg
+from simshop import ScoreBoard, SimCfg, TestFind
+from simshop import Exceptions
+from simshop import builders
+from simshop.builders.IcarusVerilog import IcarusVerilog
 
 
 __author__ = "Tim Weaver - RTLCores"
-__version__ = "v0.12"
+__version__ = simshop.__version__
 
 if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",

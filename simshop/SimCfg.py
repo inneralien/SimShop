@@ -12,7 +12,7 @@ from ConfigParser import NoOptionError
 from ConfigParser import SafeConfigParser
 from test_template import test_template
 import Exceptions
-import distutils
+import distutils.dir_util
 
 class SimCfg(SafeConfigParser):
     """
