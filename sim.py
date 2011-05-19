@@ -104,10 +104,22 @@ if __name__ == '__main__':
         try:
             if(len(args) > 0):
                 t.buildTestStruct(args[0])
-                t.listTests()
+                (last_path, last_test) = t.listTests()
             else:
                 t.buildTestStruct()
-                t.listTests()
+                (last_path, last_test) = t.listTests()
+            exe = os.path.normpath(sys.argv[0])
+            exe = os.path.split(exe)[1]
+            print "To run a simulation:"
+            print "%s <path_to/variant>/<test>" % exe
+            print ""
+            print "Example:"
+#            exe = os.path.normpath(os.path.split(sys.argv[0]))
+            if(last_path == "."):
+                print "    %s %s" % (exe, last_test)
+            else:
+                print "    %s %s/%s" % (exe, last_path, last_test)
+            print ""
         except Exceptions.TestFindError, info:
             print info.error_message
             sys.exit(1)

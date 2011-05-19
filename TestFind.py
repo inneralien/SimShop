@@ -97,13 +97,14 @@ class TestFind():
                         last_test = t       # Store the last test
                         print "    %s" % t
             print ""
-        print ""
-        print "To run a simulation:"
-        print "sim <path_to/variant>/<test>"
-        print ""
-        print "Example:"
-        if(last_path == "."):
-            print "    sim %s" % (last_test)
-        else:
-            print "    sim %s/%s" % (last_path, last_test)
-        print ""
+        return (last_path, last_test)
+#        print ""
+#        print "To run a simulation:"
+#        print "shop <path_to/variant>/<test>"
+#        print ""
+#        print "Example:"
+#        if(last_path == "."):
+#            print "    sim %s" % (last_test)
+#        else:
+#            print "    sim %s/%s" % (last_path, last_test)
+#        print ""
