@@ -251,9 +251,12 @@ if __name__ == '__main__':
                 if(options.send_email):
                     import SimShopCfg
                     import EmailScoreBoard
-                    ssc = SimShopCfg.SimShopCfg()
-                    esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
-                    esb.send()
+                    try:
+                        ssc = SimShopCfg.SimShopCfg()
+                        esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
+                        esb.send()
+                    except Exceptions.NoConfigFile, info:
+                        print "Couldn't find an email configuration file. No mail sent."
 
 
 

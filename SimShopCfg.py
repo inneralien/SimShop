@@ -21,12 +21,13 @@ class SimShopCfg(SafeConfigParser):
         self.cfg_files.append(os.path.join(sys.path[0], 'conf', 'simshop.ini'))
         if(cfg_file is not None):
             self.cfg_files.append(cfg_file)
-        print self.cfg_files
         success_list = self.read(self.cfg_files)
-        if(success_list is not None):
+        if(len(success_list) > 0):
             print "Successfully read the following config files:"
             for i in success_list:
                 print "  - %s" % i
+        else:
+            raise Exceptions.NoConfigFile("SimShopCfg", "Couldn't find a valid SimShop configuration file", None)
 
     def __getitem__(self, key):
         try:

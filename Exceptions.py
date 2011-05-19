@@ -9,6 +9,9 @@ class BaseError(Exception):
         self.error_message = short_message
         self.long_message = long_message
 
+    def __str__(self):
+        return self.error_message
+
 class LogFileDoesNotExistError(BaseError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
@@ -57,7 +60,10 @@ class InvalidPath(SimCfgError):
 class SimShopCfgError(BaseError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
-class InvalidConfigfile(SimShopCfgError):
+class InvalidConfigFile(SimShopCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+class NoConfigFile(SimShopCfgError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
 
