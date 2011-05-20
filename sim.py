@@ -256,7 +256,7 @@ if __name__ == '__main__':
                         esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
                         esb.send()
                     except Exceptions.NoConfigFile, info:
-                        print "Couldn't find an email configuration file. No mail sent."
+                        print "Couldn't find an email configuration file. No mail will sent."
 
 
 
