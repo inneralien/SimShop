@@ -15,26 +15,14 @@ import Exceptions
 import builders.Exceptions
 from builders.IcarusVerilog import IcarusVerilog
 
+import SimShopCfg
 import ScoreBoard
 import SimCfg
 import TestFind
 
+
 __author__ = "Tim Weaver - RTLCores"
 __version__ = "v0.12"
-
-# Features to add
-#
-#   Email HTML results.
-#       --email
-#       --from=me@gmail.com
-#       --to=you@gmail.com
-#       --email-cfg email.cfg
-#           username=
-#           password=
-#           css_template=
-#           email_template= (HTML)
-#
-
 
 if __name__ == '__main__':
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
@@ -73,10 +61,11 @@ if __name__ == '__main__':
                         dest="output_file",
                         metavar='FILE',
                         help="""store the scoreboard report to pickle FILE""")
-#    parser.add_option("--config-file",
-#                        dest="config_file",
-#                        metavar='FILE',
-#                        help="""parse the configuration file FILE""")
+    parser.add_option("--config-file",
+                        dest="config_file",
+                        default = '',
+                        metavar='FILE',
+                        help="""parse the configuration file FILE""")
     parser.add_option("--email",
                         action="store_true",
                         dest='send_email',
@@ -92,12 +81,14 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-## TODO Search for default config files in the usual places.  The
-## variant config file can overwrite any value set by a system wide
-## or user home config file
-##   System Wide Unix: /etc/rtlcores/xxx.cfg?
-##   System Wide Windows: c:/rtlcores/xxx.cfg?
-##   Users Home: ~/rtlcores/xxx.cfg
+    # Search for default config files in the usual places.
+    try:
+        ssc = SimShopCfg.SimShopCfg()
+        ssc.readConfigs(options.config_file)
+    except Exceptions.NoConfigFile, info:
+        print "Couldn't find any of the following config files:"
+        for file in ssc.cfg_files:
+            print "  " + file
 
     if(options.list_tests):
         t = TestFind.TestFind()
@@ -114,7 +105,6 @@ if __name__ == '__main__':
             print "%s <path_to/variant>/<test>" % exe
             print ""
             print "Example:"
-#            exe = os.path.normpath(os.path.split(sys.argv[0]))
             if(last_path == "."):
                 print "    %s %s" % (exe, last_test)
             else:
@@ -249,16 +239,13 @@ if __name__ == '__main__':
                 sys.stdout.write(tally)
 
                 if(options.send_email):
-                    import SimShopCfg
                     import EmailScoreBoard
                     try:
-                        ssc = SimShopCfg.SimShopCfg()
                         esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
                         esb.send()
-                    except Exceptions.NoConfigFile, info:
-                        print "Couldn't find an email configuration file. No mail will sent."
-
-
-
+                    except Exceptions.MissingEmailConfigSection, info:
+                        print ""
+                        print info
+                        print "No mail sent!"
     else:
         parser.print_help()

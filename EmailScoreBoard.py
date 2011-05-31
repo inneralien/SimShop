@@ -10,12 +10,13 @@ import string
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import COMMASPACE
 import Exceptions
 
 import email_template
 import css_template
 
-class EmailScoreBoard():
+class EmailScoreBoard(object):
     """
     Class used to generate and send an email containing simulation results.
     It uses the [email] section of a standard SimShop configuration object
@@ -29,21 +30,29 @@ class EmailScoreBoard():
     def __init__(self, cfg, score_board):
         self.cfg = cfg
         self.score_board = score_board
-        self.smtp_server        = self.cfg.get('email', 'smtp_server')
-        self.smtp_server_port   = self.cfg.get('email', 'smtp_server_port')
-        self.password           = self.cfg.get('email', 'password')
-        self.to_addr            = self.cfg.get('email', 'to')
-        self.from_addr          = self.cfg.get('email', 'from')
+        if(self.cfg.has_section('email')):
+            self.smtp_server        = self.cfg.get('email', 'smtp_server')
+            self.smtp_server_port   = self.cfg.get('email', 'smtp_server_port')
+            self.password           = self.cfg.get('email', 'password')
+            self.to_addr            = self.cfg.get('email', 'to').split()
+            self.from_addr          = self.cfg.get('email', 'from')
+        else:
+            raise Exceptions.MissingEmailConfigSection('__init__', "The config file has no 'email' section", None)
 
         self.status = {
-                    False: "- FAILED",
-                    True: "- PASSED",
+                    False: "FAILED",
+                    True: "PASSED",
         }
 
         self.msg = MIMEMultipart('alternative')
-        self.msg['Subject'] = "Regression %s" % self.status[self.score_board['pass']]
+        if(self.cfg.has_option('email', 'subject')):
+            s = string.Template(self.cfg.get('email', 'subject'))
+            subject = s.safe_substitute({'status': self.status[self.score_board['pass']]})
+            self.msg['Subject'] = "%s" % subject
+        else:
+            self.msg['Subject'] = "Simulation - %s" % self.status[self.score_board['pass']]
         self.msg['From'] = self.from_addr
-        self.msg['To'] = self.to_addr
+        self.msg['To'] = COMMASPACE.join(self.to_addr)
 
     def connectToServer(self):
         self.server=smtplib.SMTP(self.smtp_server, self.smtp_server_port)
@@ -57,9 +66,12 @@ class EmailScoreBoard():
         self.server.quit()
 
     def send(self):
+        print ""
+        print "Sending scoreboard via email..."
+        print "  To   :", self.msg['To']
+        print "  From :", self.msg['From']
         self.msg.attach(MIMEText(self.makeBodyText(print_html=False, print_colors=False), 'plain'))
         self.msg.attach(MIMEText(self.makeBodyText(print_html=True), 'html'))
-        print self.msg.as_string()
         self.connectToServer()
         self.server.sendmail(self.from_addr, self.to_addr, self.msg.as_string())
         self.disconnectFromServer()
@@ -68,7 +80,6 @@ class EmailScoreBoard():
         longest = self.score_board.longestString(self.score_board)
         tree = self.score_board.asciiTree(self.score_board, pad=longest+4, max_level=3, print_color=print_colors, print_html=print_html)
         tally = self.score_board.asciiTally(self.score_board)
-#        s = string.Template(email_template.email_template)
         s = string.Template(email_template.fancy_template)
         if(print_html):
             return s.safe_substitute({
@@ -86,4 +97,6 @@ if __name__ == '__main__':
     sb = ScoreBoard.ScoreBoard()
     sb.loadPickleFile('score.pkl')
     s = SimShopCfg.SimShopCfg()
-    EmailScoreBoard(s, sb).send()
+    s.readConfigs()
+    em = EmailScoreBoard(s, sb)
+#    em.send()

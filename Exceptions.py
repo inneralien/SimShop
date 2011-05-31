@@ -76,3 +76,6 @@ class EmailError(BaseError):
 class MissingSMTPServerError(EmailError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
+class MissingEmailConfigSection(EmailError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
