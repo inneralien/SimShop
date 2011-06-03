@@ -4,3 +4,5 @@ Session.vim
 scratch/
 simbuild/
 conf/simshop.ini
+build/
+dist/
