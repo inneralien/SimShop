@@ -6,10 +6,10 @@
 # See LICENSE.txt
 
 import sys,os
-import time
 from optparse import OptionParser
 import re
 import traceback
+import logging
 
 import simshop
 from simshop import SimShopCfg
@@ -17,12 +17,25 @@ from simshop import ScoreBoard, SimCfg, TestFind
 from simshop import Exceptions
 from simshop import builders
 from simshop.builders.IcarusVerilog import IcarusVerilog
+from simshop import EmailScoreBoard
 
 
 __author__ = "Tim Weaver - RTLCores"
 __version__ = simshop.__version__
 
+
 if __name__ == '__main__':
+    LEVELS = {
+                'debug'   : logging.DEBUG,
+                'info'    : logging.INFO,
+                'warning' : logging.WARNING,
+                'error'   : logging.ERROR,
+                'critical': logging.CRITICAL,
+             }
+
+#==============================================================================
+# Option Parsing
+#==============================================================================
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
         version="%s" % (__version__))
     parser.add_option("-l", "--list-tests",
@@ -38,37 +51,42 @@ if __name__ == '__main__':
                         dest="compile_only",
                         help="compile the simulation but don't run it")
     parser.add_option("-d", "--dumpon",
-                        action='store_true',
+                        action="store_true",
                         dest="dumpon",
                         help="enable dumping of waveform. This is the same as -pDUMPON")
     parser.add_option("-v", "--verbose",
-                        action='store_true',
+                        action="store_true",
                         dest="verbose",
                         help="display verbose error messages")
     parser.add_option("-D", "--defines",
-                        action='append',
+                        action="append",
                         dest="defines",
                         help="pass in extra defines")
     parser.add_option("-p", "--plusarg",
-                        action='append',
+                        action="append",
                         dest="plusargs",
                         default=[],
                         help="""Pass plusargs to the simulation.
                         sim -pDUMPON <testname>""")
     parser.add_option("-o", "--output-file",
                         dest="output_file",
-                        metavar='FILE',
+                        metavar="FILE",
                         help="""store the scoreboard report to pickle FILE""")
-    parser.add_option("--config-file",
-                        dest="config_file",
-                        default = '',
-                        metavar='FILE',
+    parser.add_option("--rc",
+                        dest="rc_file",
+                        default = None,
+                        metavar="FILE",
                         help="""parse the configuration file FILE""")
     parser.add_option("--email",
                         action="store_true",
-                        dest='send_email',
+                        dest="send_email",
                         default=False,
                         help="""email the results using settings from a config file""")
+    parser.add_option("--debug",
+                        dest="debug",
+                        default='warning',
+                        help="""Run in special debug mode. Valid options are debug, info, warning, error, critical""")
+
 #    parser.add_option("--clean",
 #                        action="store_true",
 #                        dest="clean",
@@ -79,15 +97,41 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    # Search for default config files in the usual places.
-    try:
-        ssc = SimShopCfg.SimShopCfg()
-        ssc.readConfigs(options.config_file)
-    except Exceptions.NoConfigFile, info:
-        print "Couldn't find any of the following config files:"
-        for file in ssc.cfg_files:
-            print "  " + file
+#==============================================================================
+# Message logging
+#==============================================================================
+    logging.getLogger().setLevel(LEVELS[options.debug])
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname)-8s - %(message)s')
+    ch.setFormatter(formatter)
+    logging.getLogger().addHandler(ch)
 
+#==============================================================================
+# Find rc files
+#==============================================================================
+    ssc = SimShopCfg.SimShopCfg()
+    try:
+        successful_files = ssc.readConfigs(options.rc_file)
+        if(options.rc_file is not None):
+            if(options.rc_file not in successful_files):
+                logging.error("Reading of the rc file '%s' was not successfully" % options.rc_file)
+                sys.exit(1)
+        for file in ssc.rc_files:
+            if(file in successful_files):
+                logging.info("%s [FOUND]" % file)
+            else:
+                logging.info("%s [MISSING]" % file)
+    except Exceptions.NoConfigFile, info:
+        logging.info("Didn't find any of the standard SimShop rc files:")
+        for file in ssc.rc_files:
+            logging.info("  %s" % file)
+#            print "  " + file
+    except:
+        raise
+
+#==============================================================================
+# The fun starts here
+#==============================================================================
     if(options.list_tests):
         t = TestFind.TestFind()
         try:
@@ -237,7 +281,6 @@ if __name__ == '__main__':
                 sys.stdout.write(tally)
 
                 if(options.send_email):
-                    import EmailScoreBoard
                     try:
                         esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
                         esb.send()

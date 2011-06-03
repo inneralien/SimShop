@@ -9,6 +9,13 @@ import sys, os
 import Exceptions
 from ConfigParser import NoOptionError
 from ConfigParser import SafeConfigParser
+import logging
+import NullHandler
+
+#h = NullHandler.NullHandler()
+#logger = logging.getLogger(__name__)
+#logger.addHandler(NullHandler.NullHandler())
+#logging.getLogger(__name__).addHandler(h)
 
 unix_plats = ['darwin', 'linux', 'linux2']
 win_plats  = ['win32']
@@ -31,37 +38,36 @@ class SimShopCfg(SafeConfigParser):
         3) System Wide  : os.environ['ALLUSERSPROFILE'] + "simshoprc"
 
     """
-    def __init__(self, cfg_file=None):
+    def __init__(self):
+        self._log = logging.getLogger('%s.%s' % (__name__, self.__class__.__name__))
+        self._log.addHandler(NullHandler.NullHandler())
         SafeConfigParser.__init__(self)
-        self.cfg_files = []
-        self.successful_cfg_files = []
+#        logging.error("HERE IS AN ERROR")
+#        self.logger = logging.getLogger(__name__)
+#        self.logger.addHandler(NullHandler.NullHandler())
+#        logging.getLogger(__name__).addHandler(NullHandler.NullHandler())
+        self.rc_files = []
+        self.successful_rc_files = []
         if(sys.platform in unix_plats):
-            self.cfg_files = [
+            self.rc_files = [
                                 '/etc/simshop/simshoprc',
                                 os.path.normpath(os.path.expanduser("~")  + "/.simshoprc"),
                              ]
         elif(sys.platform in win_plats):
-            self.cfg_files = [
+            self.rc_files = [
                                 os.path.normpath(os.environ['ALLUSERSPROFILE'] + "/simshoprc"),
                                 os.path.normpath(os.environ['USERPROFILE'] + "/simshoprc"),
                              ]
 
-        if(cfg_file is not None):
-            self.cfg_files.append = [cfg_file]
-
-        self.readConfigs(cfg_file)
-
     def readConfigs(self, cfg_file=None):
         if(cfg_file is not None):
             if(type(cfg_file) == type([])):
-                self.cfg_files.extend(cfg_file)
+                self.rc_files.extend(cfg_file)
             else:
-                self.cfg_files.append(cfg_file)
-        self.successful_cfg_files = self.read(self.cfg_files)
-        if(len(self.successful_cfg_files) > 0):
-            print "Successfully read the following config files:"
-            for i in self.successful_cfg_files:
-                print "  %s" % i
+                self.rc_files.append(cfg_file)
+        self.successful_rc_files = self.read(self.rc_files)
+        if(len(self.successful_rc_files) > 0):
+            return self.successful_rc_files
         else:
             raise Exceptions.NoConfigFile("SimShopCfg", "Couldn't find a valid SimShop configuration file", None)
 
