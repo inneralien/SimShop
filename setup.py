@@ -21,7 +21,7 @@ options = {
           'Development Status :: 3 - Alpha',
           'Environment :: Console',
           'Intended Audience :: End Users/Desktop',
-          'Intended Audience :: Educators',
+          'Intended Audience :: Education',
           'License :: OSI Approved :: BSD License',
           'Operating System :: MacOS :: MacOS X',
           'Operating System :: Microsoft :: Windows',
