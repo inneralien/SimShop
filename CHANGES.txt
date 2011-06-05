@@ -1,1 +1,7 @@
-v0.14.0, 5-June-2011 -- Initial version for PyPi
+Changelog
+=========
+
+v0.14 - 5-June-2011 
+---------------------
+
+- Initial version for PyPi
