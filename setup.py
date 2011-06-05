@@ -16,7 +16,6 @@ options = {
     'license':'LICENSE.txt',
     'description':'Easy Verilog simulation',
     'long_description':open('README.txt').read(),
-    'install_requires': ['distribute'],
     'classifiers' : [
           'Development Status :: 3 - Alpha',
           'Environment :: Console',
