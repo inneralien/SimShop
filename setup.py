@@ -11,7 +11,7 @@ options = {
     'author':'Tim Weaver',
     'author_email':'tim@rtlcores.com',
     'packages':find_packages(),
-    'scripts':['bin/shop.py'],
+    'scripts':['bin/shop'],
     'url':'http://pypi.python.org/pypi/SimShop',
     'license':'LICENSE.txt',
     'description':'Easy Verilog simulation',
