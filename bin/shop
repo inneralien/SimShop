@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser.add_option("-d", "--dumpon",
                         action="store_true",
                         dest="dumpon",
-                        help="enable dumping of waveform. This is the same as -pDUMPON")
+                        help="enable dumping of waveform. This is a convenience option for -pDUMPON")
     parser.add_option("-v", "--verbose",
                         action="store_true",
                         dest="verbose",
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                         action="append",
                         dest="plusargs",
                         default=[],
-                        help="""Pass plusargs to the simulation.
+                        help="""pass plusargs to the simulation
                         sim -pDUMPON <testname>""")
     parser.add_option("-o", "--output-file",
                         dest="output_file",
@@ -76,16 +76,17 @@ if __name__ == '__main__':
                         dest="rc_file",
                         default = None,
                         metavar="FILE",
-                        help="""parse the configuration file FILE""")
+                        help="""parse the resource file FILE""")
     parser.add_option("--email",
                         action="store_true",
                         dest="send_email",
                         default=False,
-                        help="""email the results using settings from a config file""")
+                        help="""email the results using settings from one of the standard resource files or from an rc file given with the --rc option""")
     parser.add_option("--debug",
                         dest="debug",
                         default='warning',
-                        help="""Run in special debug mode. Valid options are debug, info, warning, error, critical""")
+                        help="""run in special debug mode. Valid options are:
+                        debug, info, warning, error, critical""")
 
 #    parser.add_option("--clean",
 #                        action="store_true",
