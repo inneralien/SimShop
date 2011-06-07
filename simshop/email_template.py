@@ -42,7 +42,6 @@ fancy_template = \
 $tree
 $tally
                     </pre>
-                    <strong>Other Stuff:</strong> Other text goes here if you'd like.
                     </div>
                 </td>
             </tr>

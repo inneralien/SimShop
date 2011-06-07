@@ -82,6 +82,17 @@ if __name__ == '__main__':
                         dest="send_email",
                         default=False,
                         help="""email the results using settings from one of the standard resource files or from an rc file given with the --rc option""")
+    parser.add_option("--to",
+                        action="append",
+                        dest="email_recipients",
+                        metavar="RECIPIENT",
+                        default=[],
+                        help="""send email to the RECIPIENT. Multiple --to can be used to specifiy more recipients.""")
+    parser.add_option("--subject",
+                        metavar='"SUBJECT"',
+                        dest="email_subject",
+                        default=None,
+                        help="""change the subject of the email. \"My informative subject - $status\"""")
     parser.add_option("--debug",
                         dest="debug",
                         default='warning',
@@ -283,6 +294,14 @@ if __name__ == '__main__':
 
                 if(options.send_email):
                     try:
+                        if(ssc.has_section('email')):
+                            if(options.email_subject is not None):
+                                ssc.set('email', 'subject', options.email_subject)
+                                print "%r" % options.email_subject
+                            if(len(options.email_recipients) > 0):
+                                print "%r" % options.email_recipients
+                                ssc.set('email', 'to', ' '.join(options.email_recipients))
+
                         esb = EmailScoreBoard.EmailScoreBoard(ssc, score_board)
                         esb.send()
                     except Exceptions.MissingEmailConfigSection, info:
