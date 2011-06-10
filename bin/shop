@@ -38,6 +38,10 @@ if __name__ == '__main__':
 #==============================================================================
     parser = OptionParser(usage="%prog [options] [path_to/variant/<testname>]",
         version="%s" % (__version__))
+#    parser.add_option("--init",
+#                        action="store_true",
+#                        dest="init",
+#                        help="generate an example variant directory")
     parser.add_option("-l", "--list-tests",
                         action="store_true",
                         dest="list_tests",
