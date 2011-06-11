@@ -18,7 +18,7 @@ with no options or with the ``--help`` or ``-h`` option.
 
 .. cmdoption:: -l, --list-tests      
    
-   List all available tests.  |SIM| will recursively search from the current
+   List all available tests.  SimShop will recursively search from the current
    directory for any file that ends with the extension .cfg and when found
    will list all tests described in those files.
 

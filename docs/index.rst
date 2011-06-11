@@ -1,5 +1,5 @@
-|SIM|
-=====
+SimShop
+=======
 
 .. toctree::
    :maxdepth: 2

@@ -2,8 +2,8 @@
 QuickStart
 ==========
 Here is a short example of running a simulation on a design that's already
-setup for |SIM|. Using a very simple design that can be downloaded from
-<here tarball> or <here zipball> I'll run a simulation with |SIM|.
+setup for SimShop. Using a very simple design that can be downloaded from
+<here tarball> or <here zipball> I'll run a simulation with SimShop.
 
 .. todo::
     Add the actual file links
@@ -42,7 +42,7 @@ directory that constitutes a test *variant*. Each variant directory contains a
 testbench and a simulation config file. In the example case above the testbench
 Verilog file is named *tb.v* and the simulation config file is *v.cfg*. To list
 the available tests in the core use the ``-l`` or ``--list-tests`` option. By
-default |SIM| will search for files that have a .cfg extension and attempt to
+default SimShop will search for files that have a .cfg extension and attempt to
 parse them for any available tests.
 
 ::

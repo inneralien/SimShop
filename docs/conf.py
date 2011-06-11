@@ -254,9 +254,9 @@ epub_copyright = u'2010, RTLCores'
 # The depth of the table of contents in toc.ncx.
 #epub_tocdepth = 3
 
-rst_epilog = """
-.. |SIM| replace:: SimShop
-"""
+#rst_epilog = """
+#.. |SIM| replace:: SimShop
+#"""
 
 [extensions]
 todo_include_todos=True

@@ -1,10 +1,10 @@
 =====
 Intro
 =====
-|SIM| is a tool that makes running command line based Verilog simulations 
+SimShop is a tool that makes running command line based Verilog simulations 
 simple. 
 
-|SIM| is part of the simulation environment used to run baseline simulations of
+SimShop is part of the simulation environment used to run baseline simulations of
 cores purchased from RTLCores.  The simulation environment is included with any
 purchased source level RTL core. It is being released under the BSD license for
 use by anyone who would like an easy way to set up and run Verilog simulations.
@@ -17,7 +17,7 @@ very easy to install and use on all platforms. There are other reasons to favor
 Python to make for creating a Verilog simulation environment, but that's
 a much longer conversation.
 
-|SIM| is a work in progress, as all software is, with new features being added
+SimShop is a work in progress, as all software is, with new features being added
 all the time. We at RTLCores use it every day with excellent results and hope
 that you will too.
 

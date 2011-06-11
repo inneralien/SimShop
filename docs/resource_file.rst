@@ -1,7 +1,7 @@
 Resource Configuration Files
 ============================
-The simshoprc is a standard ConfigParser formatted file where |SIM|
-customizations are defined. |SIM| looks for configuration files in predefined
+The simshoprc is a standard ConfigParser formatted file where SimShop
+customizations are defined. SimShop looks for configuration files in predefined
 places on the file system. 
 
 * OSX/Linux
@@ -14,7 +14,7 @@ places on the file system.
     2) User         : %USERPROFILE%\\simshoprc
     3) System Wide  : %ALLUSERSPROFILE%\\simshoprc
 
-|SIM| will read any and all of these files, if they exist, starting with the
+SimShop will read any and all of these files, if they exist, starting with the
 system wide file, followed by the user file and finally any file passed on
 the command line. The most recently read file will overwrite any common options
 that were defined in previous configuration files. This is useful when, for
@@ -76,7 +76,7 @@ number of recipients.
 .. describe:: subject
 
    A custom subject message. Some automatic string substitution is available
-   which |SIM| will replace when the email is actually sent. For instance, the
+   which SimShop will replace when the email is actually sent. For instance, the
    status of the simulation can be replaced as part of the subject line.
 
    ::
