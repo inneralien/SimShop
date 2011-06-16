@@ -14,7 +14,7 @@ through a consistent interface. Normally we would just use Make, but using Make
 on Windows requires the installation of Cigwin which, while it's a wonderful
 tool, is a pain for some people to deal with. Python, on the other hand, is
 very easy to install and use on all platforms. There are other reasons to favor
-Python to make for creating a Verilog simulation environment, but that's
+Python over Make for creating a Verilog simulation environment, but that's
 a much longer conversation.
 
 SimShop is a work in progress, as all software is, with new features being added

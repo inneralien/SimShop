@@ -2,7 +2,7 @@
 QuickStart
 ==========
 Here is a short example of running a simulation on a design that's already
-setup for SimShop. Using a very simple design that can be downloaded from
+set up for SimShop. Using a very simple design that can be downloaded from
 <here tarball> or <here zipball> I'll run a simulation with SimShop.
 
 .. todo::

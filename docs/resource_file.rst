@@ -16,15 +16,15 @@ places on the file system.
 
 SimShop will read any and all of these files, if they exist, starting with the
 system wide file, followed by the user file and finally any file passed on
-the command line. The most recently read file will overwrite any common options
-that were defined in previous configuration files. This is useful when, for
+the command line. The most recently read file will overwrite any options that
+were defined in previous configuration files. This is useful when, for
 instance, a group wants to use a common email distribution list for receiving
 simulation results but for a test simulation an individual user may want the
 results to be emailed only to them. That user can override the email settings
 by either creating a simshoprc in their home directory or passing a temporary
 one on the command line. The users custom configuration file only needs to
-contain the items that he would like to override, not every item in the
-system wide configuration file.
+contain the items that he would like to override, not every item in the system
+wide configuration file.
 
 .. todo::Add [init] section
 .. 

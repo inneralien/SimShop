@@ -14,7 +14,7 @@ only option is downloading a source distribution.
 
 Binary Distribution
 -------------------
-Binary versions of g are generated, with each release, for Windows and Mac
+Binary versions are generated, with each release, for Windows and Mac
 OSX. These provide a way of installing SimShop as standalone command line
 applications without having to understand Python packages. These also bundle
 a Python interpreter so there is no need to install a separate Python runtime
@@ -52,6 +52,7 @@ easy_install from PyPi
 Windows GUI Installer
 +++++++++++++++++++++
 
+.. todo:: Add some description for the Windows installer
 
 
 System Requirements

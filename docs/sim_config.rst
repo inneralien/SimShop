@@ -1,7 +1,7 @@
 ======================
 Simulation Config File
 ======================
-Simulation config files are used to define the files need for a simulation as
+Simulation config files are used to define the files needed for a simulation as
 well as define the tests that can be run. Each variant will have one and only
 one simulation config file.
 
@@ -40,44 +40,58 @@ would be two directories up or ../../
 .. describe:: RTL_FILES
 
     This item is a list of all the RTL files needed by the variant. All
-    files are relative to the PROJ_ROOT. So a file in rtl/fsm.v
+    files are relative to the PROJ_ROOT.
 
-    ``RTL_FILES = rtl/and_nand.v rtl/or_nor.v``
+::
+
+    RTL_FILES = rtl/and_nand.v rtl/or_nor.v
 
 .. describe:: RTL_INC_DIRS
     
-   If there are files include in the source the compiler needs to know where
-   those files are located and this defines those directories.
+   If there are files include in the source via the ```include`` statement
+   the compiler needs to know where those files are located and
+   ``RTL_INC_DIRS`` defines those directories.
 
-    ``RTL_INC_DIRS = rtl/includes``
+::
+
+    RTL_INC_DIRS = rtl/includes
 
 .. describe:: TEST_FILES
 
    Any files used by the testbench that aren't RTL are defined here.
 
-   ``TEST_FILES = test/tb.v test/other_test_file.v``
+::
+
+   TEST_FILES = test/tb.v test/other_test_file.v
 
 .. describe:: TEST_INC_DIRS
 
    Just like the RTL_INC_DIRS, if there are included files used by the
    testbench the directories they are contained in would be defined here.
 
-   ``TEST_INC_DIRS = test/includes test/models/includes``
+::
+
+   TEST_INC_DIRS = test/includes test/models/includes
 
 Optional Entries
 ----------------
 .. describe:: DEFINES
 
-    Default: ''
-    ``DEFINES = VERBOSE FILTEN``
+::
+
+    DEFINES = VERBOSE FILTEN
 
 .. describe:: TIMEOUT
 
-   ``TIMEOUT = 50000000``
+::
+
+   TIMEOUT = 50000000
 
 .. describe:: TIMESCALE
 
-   ``TIMESCALE = 1ns/10ps``
+::
+
+   TIMESCALE = 1ns/10ps
 
 .. todo:: Define the rest of the optional entries
 

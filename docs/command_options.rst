@@ -72,7 +72,7 @@ with no options or with the ``--help`` or ``-h`` option.
 
 .. cmdoption:: --to=RECIPIENT        
    
-   Send email to the RECIPIENT. Multiple --to can be used to specifiy more
+   Send email to the RECIPIENT. Multiple --to can be used to specify more
    recipients.
 
 .. cmdoption:: --subject="SUBJECT"   
