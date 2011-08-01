@@ -54,6 +54,10 @@ class InvalidPath(SimCfgError):
     def __init__(self, method_name, error_message, long_message):
         BaseError.__init__(self, method_name, error_message, long_message)
 
+class NoSimConfigFound(SimCfgError):
+    def __init__(self, method_name, error_message, long_message):
+        BaseError.__init__(self, method_name, error_message, long_message)
+
 #==============================================================================
 # SimShopCfg Exceptions
 #==============================================================================

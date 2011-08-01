@@ -204,6 +204,8 @@ if __name__ == '__main__':
                     print "The test '%s' does not exist. Check your spelling." % info.error_message
                 except Exceptions.InvalidPath, info:
                     print "The path '%s' does not exist." % info.error_message
+                except Exceptions.NoSimConfigFound, info:
+                    print "The path '%s' does not contain a simulation config file." % info.error_message
                 except Exceptions.MultipleConfigFiles, info:
                     print "Multiple Config Files"
                     print "I found the following config files"

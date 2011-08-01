@@ -94,14 +94,18 @@ class SimCfg(SafeConfigParser):
         if(path is None):
             path = '.'
             self.cfg_files = []
-        for directory, subdirs, files in os.walk(path):
-            for f in files:
+#        for directory, subdirs, files in os.walk(path):
+        for f in os.listdir(path):
+#            for f in files:
                 found = cfg.search(f.strip())
                 if(found is not None):
-                    self.cfg_files.append("%s%s%s" % (directory, os.sep, f))
+                    self.cfg_files.append("%s%s%s" % (path, os.sep, f))
         if(len(self.cfg_files) > 1):
             self.invalid = True
             raise Exceptions.MultipleConfigFiles('readCfg', self.cfg_files, None)
+        elif(len(self.cfg_files) == 0):
+            self.invalid = True
+            raise Exceptions.NoSimConfigFound('readCfg', path, None)
         else:
             self.read(self.cfg_files[0])
 
