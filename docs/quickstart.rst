@@ -1,13 +1,13 @@
+.. _tarball: http://dl.dropbox.com/u/36920546/simshop_example.tar.gz
+.. _zipball: http://dl.dropbox.com/u/36920546/simshop_example.zip
+
 ==========
 QuickStart
 ==========
 Here is a short example of running a simulation on a design that's already
-set up for SimShop. Using a very simple design that can be downloaded from
-<here tarball> or <here zipball> I'll run a simulation with SimShop.
-
-.. todo::
-    Add the actual file links
-
+set up for SimShop. Using a very simple design that can be downloaded as
+either a zipball_ or a tarball_, 
+I'll run a simulation with SimShop.
 
 Untar/unzip the file which will create the example directory structure that
 contains the Verilog RTL, the testbench and a couple simshop config files.
