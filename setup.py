@@ -40,7 +40,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2app':
         print 'Could not import py2app.  Mac bundle could not be built.'
         sys.exit(0)
     # Mac specific options
-    options['app'] = ['bin/shop.py']
+    options['app'] = ['bin/shop']
     options['options'] = {
         'py2app': {
             'argv_emulation': True
@@ -54,7 +54,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2exe':
     except ImportError:
         print 'Could not import py2exe.  Windows bundle could not be built.'
         sys.exit(0)
-    options['console'] = ['bin/shop.py']
+    options['console'] = ['bin/shop']
 
 # run the setup
 setup(**options)
