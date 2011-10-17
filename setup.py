@@ -32,16 +32,19 @@ options = {
 
 # Mac specific for py2app
 if len(sys.argv) >= 2 and sys.argv[1] == 'py2app':
-    try:
-        import py2app
-    except ImportError:
-        print 'Could not import py2app.  Mac bundle could not be built.'
-        sys.exit(0)
     # Mac specific options
-    options['app'] = ['bin/shop']
+    # Copy bin/shop to bin/shop.py or py2app won't build
+    fo = open('bin/shop.py', 'w')
+    fi = open('bin/shop', 'r')
+    fo.write(fi.read())
+    fi.close()
+    fo.close()
+
+    options['app'] = ['bin/shop.py']
     options['options'] = {
         'py2app': {
-            'argv_emulation': True
+            'argv_emulation': True,
+            'no_chdir': True,
         }
     }
 
@@ -53,6 +56,11 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2exe':
         print 'Could not import py2exe.  Windows bundle could not be built.'
         sys.exit(0)
     options['console'] = ['bin/shop']
+    options['options'] = {
+        'py2exe': {
+            'argv_emulation': True,
+            'no_chdir': True,
+        }
 
 # run the setup
 setup(**options)
