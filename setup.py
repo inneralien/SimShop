@@ -15,7 +15,7 @@ options = {
     'url':'http://pypi.python.org/pypi/SimShop',
     'license':'LICENSE.txt',
     'description':'Easy Verilog simulation',
-    'long_description':open('README.txt').read(),
+    'long_description':open('docs/intro.rst').read(),
     'classifiers' : [
           'Development Status :: 4 - Beta',
           'Environment :: Console',
