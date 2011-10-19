@@ -56,11 +56,6 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2exe':
         print 'Could not import py2exe.  Windows bundle could not be built.'
         sys.exit(0)
     options['console'] = ['bin/shop']
-    options['options'] = {
-        'py2exe': {
-            'argv_emulation': True,
-            'no_chdir': True,
-        }
 
 # run the setup
 setup(**options)

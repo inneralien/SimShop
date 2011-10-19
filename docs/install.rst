@@ -1,28 +1,66 @@
-==========
+.. _Icarus: http://iverilog.wikia.com/wiki/Installation_Guide
+.. _Windows: http://bleyer.org/icarus/
+
 Installing
 ==========
-There are a couple requirements to run simulations, Python and a Verilog
-simulator.  The cores designed by RTLCores should run on any professional level
-simulator like Synopsys VCS or Cadence NC-Verilog as well as open source
-simulators like Icarus Verilog.
-
 There are multiple ways to install SimShop depending on how one intends to use
 it.  It can be download either as a source distribution, which can be installed
 as a Python package and used to write ones own simulation scripts, or it can be
 downloaded as a pre-compiled distribution for Windows or Mac OSX. For Linux the
-only option is downloading a source distribution.
+only option is to install from a source distribution.
+
+SimShop currently only supports the Icarus Verilog simulator, so be sure
+to download and install it before attempting to simulate a design with 
+SimShop.
+
+General install guide for Icarus: http://iverilog.wikia.com/wiki/Installation_Guide
+
+Icarus binaries for Windows: http://bleyer.org/icarus/
 
 Binary Distribution
 -------------------
-Binary versions are generated, with each release, for Windows and Mac
+Binary versions of SimShop are generated with each release for Windows and Mac
 OSX. These provide a way of installing SimShop as standalone command line
-applications without having to understand Python packages. These also bundle
-a Python interpreter so there is no need to install a separate Python runtime
-to use them.
+applications without having to understand Python packages. These also bundle a
+Python interpreter so there is no need to install a separate Python runtime to
+use them. 
 
-<link to current OSX .app>
+.. note:: These are **not** GUI applications. They are meant to be run from the command line. 
 
-<link to current Windows .zip>
+Mac OSX
+^^^^^^^
+
+* Mac OSX - <link to current OSX .app>
+    Drag the .app file into your ``/Applications`` folder to install it.
+
+To run the OSX version from the command line after it's been installed to the
+``/Applications`` directory issue the following command from
+the terminal:
+
+::
+
+    /Applications/SimShop.app/Contents/MacOS/SimShop
+
+Add the following entry to ~/.bash_profile to be able to run the application
+from the command line via the alias **shop**.
+
+::
+
+    function shop { /Applications/SimShop.app/Contents/MacOS/SimShop $*; }
+
+Windows
+^^^^^^^
+
+* Windows - <link to current Windows .zip>
+    This is a self extracting zip file. Double click on it and 
+
+You'll want to add the location of the executable to the PATH environment
+variable so that it can be run from the command line.
+
+::
+
+    shop.exe
+
 
 Source Distribution
 -------------------
@@ -32,13 +70,13 @@ setup.py install or easy_install.
 
 
 PIP from PyPi (Recommended)
-+++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ::
 
     pip install SimShop
 
 PIP from a source tarball
-+++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^
 ::
 
     pip install SimShop-<version>.tar.gz
@@ -48,22 +86,3 @@ easy_install from PyPi
 ::
 
     easy_install SimShop
-
-Windows GUI Installer
-+++++++++++++++++++++
-
-.. todo:: Add some description for the Windows installer
-
-
-System Requirements
--------------------
-- Python 2.4+
-- Supported Platforms
-    - Mac OSX 10.5+
-    - Linux
-    - Windows XP
-    - Windows Vista
-    - Windows 7
-- Verilog Simulator
-    - Icarus Verilog
-
