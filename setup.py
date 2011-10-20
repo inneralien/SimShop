@@ -15,9 +15,9 @@ options = {
     'url':'http://pypi.python.org/pypi/SimShop',
     'license':'LICENSE.txt',
     'description':'Easy Verilog simulation',
-    'long_description':open('README.txt').read(),
+    'long_description':open('docs/intro.rst').read(),
     'classifiers' : [
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Intended Audience :: End Users/Desktop',
           'Intended Audience :: Education',
@@ -56,11 +56,6 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2exe':
         print 'Could not import py2exe.  Windows bundle could not be built.'
         sys.exit(0)
     options['console'] = ['bin/shop']
-    options['options'] = {
-        'py2exe': {
-            'argv_emulation': True,
-            'no_chdir': True,
-        }
 
 # run the setup
 setup(**options)
