@@ -34,5 +34,5 @@ use of simulation grids and makes it much easier to automate various processes.
 
 Documentation
 =============
-For information on how to install and use SimShop please see the pretty
-documentation_ which is hosted on `Read The Docs <http://simshop.readthedocs.org>`_.
+For information on how to install and use SimShop check out the pretty
+documentation_. 

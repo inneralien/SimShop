@@ -27,11 +27,16 @@ use them.
 
 .. note:: These are **not** GUI applications. They are meant to be run from the command line. 
 
+
 Mac OSX
 ^^^^^^^
 
-* Mac OSX - <link to current OSX .app>
-    Drag the .app file into your ``/Applications`` folder to install it.
+Download the latest OSX DMG file from 
+`here <https://github.com/RTLCores/SimShop/downloads>`_.
+
+After the file is downloaded double click on it to mount the disk image to the
+filesystem.  Drag the .app file into your ``/Applications`` folder to install
+it.
 
 To run the OSX version from the command line after it's been installed to the
 ``/Applications`` directory issue the following command from
@@ -51,11 +56,13 @@ from the command line via the alias **shop**.
 Windows
 ^^^^^^^
 
-* Windows - <link to current Windows .zip>
-    This is a self extracting zip file. Double click on it and 
+Download the latest ZIP file from 
+`here <https://github.com/RTLCores/SimShop/downloads>`_.
+After the file is downloaded extract it by right clicking on the file and
+selecting "Extract All".
 
-You'll want to add the location of the executable to the PATH environment
-variable so that it can be run from the command line.
+Once it's installed you'll want to add the location of the executable to the
+PATH environment variable so that it can be run from the command line.
 
 ::
 
