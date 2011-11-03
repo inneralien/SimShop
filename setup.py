@@ -41,8 +41,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2app':
     fo.close()
 
     options['app'] = ['bin/shop.py']
-    options['options'] = {
-        'py2app': {
+    options['options'] = {'py2app': {
             'argv_emulation': True,
             'no_chdir': True,
         }
@@ -56,6 +55,17 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2exe':
         print 'Could not import py2exe.  Windows bundle could not be built.'
         sys.exit(0)
     options['console'] = ['bin/shop']
+    options['options'] = {'py2exe': {
+           'compressed':1,
+           'bundle_files': 2,
+           'dist_dir': "dist_win/SimShop_v%s" % __version__
+           }}
 
 # run the setup
 setup(**options)
+
+# Make the .dmg file
+if len(sys.argv) >= 2 and sys.argv[1] == 'py2app':
+    import subprocess
+    print "Building DMG..."
+    subprocess.call(["hdiutil", "create", "-fs", "HFS+", "-srcfolder", "dist/SimShop.app", "-volname", "SimShop", "dist/SimShop_v%s" % __version__])
