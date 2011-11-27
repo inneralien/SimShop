@@ -28,7 +28,7 @@ class TestFind():
             for f in files:
                 found = cfg.search(f.strip())
                 if(found is not None):
-                    if(path is '.'):
+                    if(path == '.'):
                         self.cfg_files.append("%s%s%s" % (directory, os.sep, f))
                     else:
                         cfg_file = "%s%s%s" % (directory, os.sep, f)
@@ -37,8 +37,8 @@ class TestFind():
             raise Exceptions.NoConfigFileFound('getCfgs', 'There were no config files found in the current path.', None)
         print "Found the following config files"
         print "--------------------------------"
-        for file in self.cfg_files:
-            print "%s" % file
+        for f in self.cfg_files:
+            print "%s" % f
         print ""
 
     def buildTestStruct(self, path=None):

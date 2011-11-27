@@ -3,7 +3,6 @@
 # See LICENSE.txt
 
 from VerilogSim import VerilogSim
-import distutils.dir_util
 
 class IcarusVerilog(VerilogSim):
     """
