@@ -96,7 +96,7 @@ if __name__ == '__main__':
                         metavar='"SUBJECT"',
                         dest="email_subject",
                         default=None,
-                        help="""change the subject of the email. \"My informative subject - $status\"""")
+                        help="""change the subject of the email. 'My informative subject - $status'""")
     parser.add_option("--debug",
                         dest="debug",
                         default='warning',
