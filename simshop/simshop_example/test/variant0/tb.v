@@ -75,4 +75,20 @@ begin
 end
 endtask
 
+task dummy1;
+begin
+    $display("Dummy task 1 begin");
+    #5;
+    $display("Dummy task 1 end");
+end
+endtask
+
+task dummy2;
+begin
+    $display("Dummy task 2 begin");
+    #5;
+    $display("Dummy task 2 end");
+end
+endtask
+
 endmodule
