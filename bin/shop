@@ -186,10 +186,20 @@ if __name__ == '__main__':
 
     if(len(args) > 0):
         score_board = ScoreBoard.ScoreBoard('Simulation Score')
-        score_board.addErrorRegex(re.compile(r'ERROR:'))
-        score_board.addWarningRegex(re.compile(r'WARNING:'))
-        score_board.setTestBeginRegex(re.compile(r'TEST_BEGIN'))
-        score_board.setTestEndRegex(re.compile(r'TEST_END'))
+        for error in ssc.get('scoreboard', 'errors').split():
+            logging.info("Adding error regex: %s" % error)
+            score_board.addErrorRegex(re.compile(r'%s' % error))
+
+        for warning in ssc.get('scoreboard', 'warnings').split():
+            logging.info("Adding warning regex: %s" % warning)
+            score_board.addWarningRegex(re.compile(r'%s' % warning))
+
+        tb_re = ssc.get('scoreboard', 'test_begin')
+        te_re = ssc.get('scoreboard', 'test_end')
+        logging.info("Adding test_begin regex: %s" % tb_re)
+        score_board.setTestBeginRegex(re.compile(r'%s' % tb_re))
+        logging.info("Adding test_end regex: %s" % te_re)
+        score_board.setTestEndRegex(re.compile(r'%s' % te_re))
 
         cfg_list = []
         try:
