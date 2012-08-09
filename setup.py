@@ -42,7 +42,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == 'py2app':
 
     options['app'] = ['bin/shop.py']
     options['options'] = {'py2app': {
-            'argv_emulation': True,
+#            'argv_emulation': True,
             'no_chdir': True,
         }
     }
