@@ -17,8 +17,8 @@ class TaskConfigParser(SafeConfigParser):
 
     def expand_tasks(self, tasks, level=0):
         """Takes a list of tasks and expands any [section] items"""
-        if(level > 2):
-            raise Exception("Too many levels of recursion")
+        if(level > 25):
+            raise TooManyTaskLevelsError(level)
         ret_tasks = []
         for task in tasks:
             m = self.section_re.match(task)
@@ -28,6 +28,11 @@ class TaskConfigParser(SafeConfigParser):
             else:
                 ret_tasks.append(task)
         return ret_tasks
+
+class TooManyTaskLevelsError(Exception):
+    def __init__(self, message):
+        Exception.__init__(self)
+        self.message = message
 
 if __name__ == '__main__':
     c = TaskConfigParser()

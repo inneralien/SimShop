@@ -18,6 +18,7 @@ from simshop import Exceptions
 from simshop import builders
 from simshop.builders.IcarusVerilog import IcarusVerilog
 from simshop import EmailScoreBoard
+from simshop.task_config_parser import TooManyTaskLevelsError
 
 
 __author__ = "Tim Weaver - RTLCores"
@@ -207,7 +208,6 @@ if __name__ == '__main__':
                 # Make a new sim_cfg for each new target
                 # We don't want stale variables from previous runs
                 sim_cfg = SimCfg.SimCfg()
-                cfg_list.append(sim_cfg)
                 try:
                     sim_cfg.verifyTarget(target)
                 except Exceptions.InvalidTest, info:
@@ -221,7 +221,11 @@ if __name__ == '__main__':
                     print "I found the following config files"
                     for i in info.error_message:
                         print " %s" % i
+                except TooManyTaskLevelsError, info:
+                    print "Error: The config file contains %d levels of test recursion. i.e. tests that reference other tests." % info.message
+                    sim_cfg.invalid = True
                 finally:
+                    cfg_list.append(sim_cfg)
                     score_board.addVariant(sim_cfg.variant)
 
             for sim_cfg in cfg_list:
