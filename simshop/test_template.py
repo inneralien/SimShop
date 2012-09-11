@@ -20,6 +20,7 @@ module auto_test();
         $$display("<%0t> Dumping has been turned OFF. Nothing will be dumped.", $$time);
 
         $$display("");
+        $$display("<%0t> Initializing Design and Starting Auto Tests", $$time);
         #0;
         $reset
         runsim;
@@ -30,7 +31,6 @@ module auto_test();
     begin
         fork : auto_tests
         begin : auto_tests_run
-            $$display("<%0t> Starting Auto Tests", $$time);
             $tasks
             disable auto_tests;
         end
