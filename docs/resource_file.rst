@@ -42,6 +42,48 @@ wide configuration file.
        variant. A standard simcfg might have a list of RTL or test files already
        populated to make it easier to begin a simulation.
 
+[scoreboard]
+------------
+Settings used by the scoreboard.
+
+.. describe:: errors
+
+    Any number of regular expressions used to determine what an error string
+    looks like. All strings are treated as Python raw strings internally. i.e.
+    r'ERROR'
+
+    ::
+
+        errors = ERROR
+
+.. describe:: warnings
+
+    Any number of regular expressions used to determine what a warning string
+    looks like. All strings are treated as Python raw strings internally. i.e.
+    r'WARNING'
+
+    ::
+    
+        warnings = WARNING WARN
+
+.. describe:: test_begin
+
+    A single string that defines the beginning of a test.
+
+    ::
+
+        test_begin = TEST_BEGIN
+    
+
+.. describe:: test_end
+
+    A single string that defines the ending of a test.
+
+    ::
+
+        test_end = TEST_END
+    
+
 [email]
 -------
 Settings which allow the simulation scoreboard report to be emailed to any

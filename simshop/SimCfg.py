@@ -9,12 +9,13 @@ import re
 import os, os.path
 import string
 from ConfigParser import NoOptionError
-from ConfigParser import SafeConfigParser
+#from ConfigParser import SafeConfigParser
+from task_config_parser import TaskConfigParser
 from test_template import test_template
 import Exceptions
 import distutils.dir_util
 
-class SimCfg(SafeConfigParser):
+class SimCfg(TaskConfigParser):
     """
     This class is used to maintain the simulation environment
     including paths and config files.
@@ -47,7 +48,7 @@ class SimCfg(SafeConfigParser):
                 'SIMCMD':           'vvp',
                 'WARN':             'all',
         }
-        SafeConfigParser.__init__(self, self.defaults)
+        TaskConfigParser.__init__(self, self.defaults)
 
         self.invalid = False    # Invalid variant/test
         self.incomplete = False # Incomplete Test
@@ -60,6 +61,7 @@ class SimCfg(SafeConfigParser):
         self.rel_proj_root = None
         self.tasks = []
         self.run_time = 0
+        self.error_message = ""
 
     def __getitem__(self, key):
         try:
